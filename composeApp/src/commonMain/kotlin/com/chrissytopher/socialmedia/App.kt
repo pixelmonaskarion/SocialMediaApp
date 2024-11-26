@@ -16,6 +16,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import socialmediaapp.composeapp.generated.resources.Res
 import socialmediaapp.composeapp.generated.resources.compose_multiplatform
 
+val LocalPlatform: ProvidableCompositionLocal<Platform> = compositionLocalOf { error("no platform provided") }
+
 @Composable
 @Preview
 fun App() {
@@ -26,7 +28,13 @@ fun App() {
                 Text("Click me!")
             }
             AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
+                var greeting by remember { mutableStateOf("") }
+                val platform = LocalPlatform.current
+                LaunchedEffect(showContent) {
+                    if (showContent) {
+                        greeting = platform.greet()
+                    }
+                }
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Image(painterResource(Res.drawable.compose_multiplatform), null)
                     Text("Compose: $greeting")

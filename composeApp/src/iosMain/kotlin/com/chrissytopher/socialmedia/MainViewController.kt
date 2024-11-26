@@ -1,5 +1,12 @@
 package com.chrissytopher.socialmedia
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.ComposeUIViewController
 
-fun MainViewController() = ComposeUIViewController { App() }
+val platform = IOSPlatform()
+
+fun MainViewController() = ComposeUIViewController {
+    CompositionLocalProvider(LocalPlatform provides platform) {
+        App()
+    }
+}
