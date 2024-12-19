@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -32,11 +33,13 @@ fun App() {
                 val platform = LocalPlatform.current
                 LaunchedEffect(showContent) {
                     if (showContent) {
-                        greeting = platform.greet()
+                        runCatching {
+                            greeting = platform.greet()
+                        }
                     }
                 }
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
+                    AsyncImage("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRceH_ZcA_58UOeXRWeJetPDs9_ipgN6lKuHA&s", contentDescription = null)
                     Text("Compose: $greeting")
                 }
             }

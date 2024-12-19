@@ -46,6 +46,8 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(projects.shared)
             implementation(libs.ktor.client.core)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor3)
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)

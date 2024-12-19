@@ -18,3 +18,9 @@ fun Application.module() {
         }
     }
 }
+
+fun get(x: (String) -> Unit) {
+    get({
+        println(it)
+    })
+}
