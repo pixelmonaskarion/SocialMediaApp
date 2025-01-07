@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    kotlin("plugin.serialization") version "2.1.0"
 }
 
 kotlin {
@@ -48,6 +49,9 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
+            implementation(libs.kotlinx.io.core)
+            implementation(libs.kvault)
+            implementation(libs.kotlinx.serialization.json)
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
