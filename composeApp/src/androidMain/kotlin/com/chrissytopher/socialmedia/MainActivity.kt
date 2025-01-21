@@ -10,10 +10,13 @@ import androidx.compose.ui.tooling.preview.Preview
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val platform = AndroidPlatform()
+        val platform = AndroidPlatform(this)
+        val authManager = AuthenticationManager(platform)
         setContent {
             CompositionLocalProvider(LocalPlatform provides platform) {
-                App()
+                CompositionLocalProvider(LocalAuthenticationManager provides authManager) {
+                    App()
+                }
             }
         }
     }

@@ -1,0 +1,13 @@
+[package]
+name = "rust_crypto"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+android_logger = "0.14.1"
+jni = "0.21.1"
+log = "0.4.25"
+openssl = { version = "0.10.68", features = ["vendored"] }
+
+[lib]
+crate-type = ["cdylib"]

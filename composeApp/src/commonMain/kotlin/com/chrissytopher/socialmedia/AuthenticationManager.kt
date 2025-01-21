@@ -1,6 +1,5 @@
 package com.chrissytopher.socialmedia
 
-import androidx.compose.runtime.key
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -22,7 +21,7 @@ class AuthenticationManager(private val platform: Platform) {
             return res.errorMessage?.let { "Something went wrong: $it (${res.errorCode})" } ?: "An unknown error occurred"
         }
         val serverPublicKey = platform.apiClient.authServerPublicKey() ?: return "Something went wrong, try again later"
-        val verified = verifyAccountCertificate(keypair, username, Base64.decode(res.certificate), serverPublicKey)
+        val verified = verifyAccountCertificate(keypair, username, res.certificate, serverPublicKey)
         if (!verified) {
             return "Something went wrong, try again"
         }
