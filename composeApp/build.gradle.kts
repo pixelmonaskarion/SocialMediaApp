@@ -33,6 +33,7 @@ kotlin {
         
         androidMain.dependencies {
             implementation(compose.preview)
+            implementation(compose.material3)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
         }
