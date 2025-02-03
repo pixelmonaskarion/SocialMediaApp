@@ -20,7 +20,7 @@ class AndroidPlatform(private val context: Context): Platform() {
             install(ContentNegotiation) {
                 json()
             }
-        }
+        }, authenticationManager
     )
     override val kvault = KVault(context)
 

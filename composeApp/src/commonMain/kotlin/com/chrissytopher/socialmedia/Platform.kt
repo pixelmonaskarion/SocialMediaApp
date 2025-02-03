@@ -6,7 +6,8 @@ import com.liftric.kvault.KVault
 
 abstract class Platform {
     abstract val name: String
-    open val apiClient = ServerApi()
+    open val authenticationManager = AuthenticationManager(this)
+    open val apiClient = ServerApi(authenticationManager = authenticationManager)
     abstract val kvault: KVault
 
     abstract fun livingInFearOfBackGestures(): Boolean

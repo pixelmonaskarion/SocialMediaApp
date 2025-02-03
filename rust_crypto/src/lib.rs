@@ -1,6 +1,6 @@
-use jni::{objects::{JByteArray, JClass, JString}, sys::jboolean, JNIEnv};
+use jni::{objects::{JByteArray, JClass, JString}, sys::{jboolean, jstring}, JNIEnv};
 use log::{error, warn};
-use openssl::{base64, error::ErrorStack, hash::MessageDigest, nid::Nid, pkey::{PKey, Private, Public}, rsa::Rsa, x509::{X509Req, X509}};
+use openssl::{base64, error::ErrorStack, hash::MessageDigest, nid::Nid, pkey::{PKey, Private, Public}, rsa::Rsa, sign::Signer, x509::{X509Req, X509}};
 
 #[no_mangle]
 pub extern "system" fn Java_com_chrissytopher_socialmedia_RustCrypto_newKeypair<'local>(env: JNIEnv<'local>, _class: JClass<'local>)
@@ -69,9 +69,7 @@ pub extern "system" fn Java_com_chrissytopher_socialmedia_RustCrypto_verifyAccou
     keypair: JByteArray<'local>, username: JString<'local>, certificate_base64: JString<'local>, server_public_key: JString<'local>
 ) -> jboolean {
     android_logger::init_once(android_logger::Config::default().with_max_level(log::LevelFilter::Trace));
-    warn!("verify account certificate");
     let cert_base64: String = env.get_string(&certificate_base64).unwrap().into();
-    warn!("cert base64 {cert_base64}");
     let cert_bytes = base64::decode_block(&cert_base64).unwrap();
     let valid = verify_account_certificate_inner(env.convert_byte_array(keypair).unwrap(), env.get_string(&username).unwrap().into(), cert_bytes, env.get_string(&server_public_key).unwrap().into());
     if let Err(e) = &valid {
@@ -85,13 +83,10 @@ pub extern "system" fn Java_com_chrissytopher_socialmedia_RustCrypto_verifyAccou
 
 pub fn verify_account_certificate_inner(keypair: Vec<u8>, username: String, certificate_bytes: Vec<u8>, server_public_key: String) -> Result<bool, ErrorStack> {
     let cert = X509::from_der(&certificate_bytes)?;
-    warn!("ninji rizz party");
 
     let keypair = deserialize_public_key(&keypair)?;
 
-    warn!("rizzed up livi done");
     let pub_key = PKey::from_rsa(Rsa::public_key_from_der(&base64::decode_block(&server_public_key)?)?)?;
-    warn!("ohio gyat");
     
     let mut valid = cert.verify(&pub_key)?;
     valid &= cert.public_key()?.public_eq(PKey::from_rsa(keypair)?.as_ref());
@@ -100,6 +95,23 @@ pub fn verify_account_certificate_inner(keypair: Vec<u8>, username: String, cert
     }
     valid &= cert.subject_name().entries_by_nid(Nid::ACCOUNT).next().unwrap().data().as_utf8()?.to_string() == username;
     Ok(valid)
+}
+
+#[no_mangle]
+pub extern "system" fn Java_com_chrissytopher_socialmedia_RustCrypto_accountSignature<'local>(mut env: JNIEnv<'local>, _class: JClass<'local>,
+    keypair: JByteArray<'local>, username: JString<'local>, nonce: JString<'local>
+) -> jstring {
+    android_logger::init_once(android_logger::Config::default().with_max_level(log::LevelFilter::Trace));
+    let keypair = PKey::from_rsa(deserialize_private_key(&env.convert_byte_array(keypair).unwrap()).unwrap()).unwrap();
+    let username: String = env.get_string(&username).unwrap().into();
+    let nonce: String = env.get_string(&nonce).unwrap().into();
+    let mut payload = vec![];
+    payload.append(&mut username.as_bytes().to_vec());
+    payload.append(&mut nonce.as_bytes().to_vec());
+    let mut signer = Signer::new(MessageDigest::sha256(), &keypair).unwrap();
+    let signature = signer.sign_oneshot_to_vec(&payload).unwrap();
+    let output = env.new_string(base64::encode_block(&signature)).unwrap();
+    **output
 }
 
 #[cfg(test)]

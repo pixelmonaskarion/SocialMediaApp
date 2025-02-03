@@ -1,5 +1,7 @@
 package com.chrissytopher.socialmedia
 
+import io.ktor.client.request.HttpRequestBuilder
+import kotlinx.datetime.Clock
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -30,5 +32,28 @@ class AuthenticationManager(private val platform: Platform) {
         platform.kvault.set(ACCOUNT_KEYPAIR_KEY, keypair.serialize())
         platform.kvault.set(ACCOUNT_CERTIFICATE_KEY, Base64.decode(res.certificate))
         return null
+    }
+
+    val username: String?
+        get() = platform.kvault.string(USERNAME_KEY)
+    val certificate: ByteArray?
+        get() = platform.kvault.data(ACCOUNT_CERTIFICATE_KEY)
+    val keypair: ByteArray?
+        get() = platform.kvault.data(ACCOUNT_KEYPAIR_KEY)
+
+    @OptIn(ExperimentalEncodingApi::class)
+    fun addAuthHeaders(req: HttpRequestBuilder) {
+        req.apply {
+            username?.let { username ->
+                headers["X-Username"] = username
+                keypair?.let { keypair ->
+                    val nonce = Clock.System.now().toEpochMilliseconds().toString()
+                    headers["X-Nonce"] = nonce
+                    headers["X-Auth-Signature"] = accountSignature(keypair, username, nonce)
+                }
+            }
+            certificate?.let { headers["X-Auth-Cert"] = Base64.encode(it) }
+
+        }
     }
 }

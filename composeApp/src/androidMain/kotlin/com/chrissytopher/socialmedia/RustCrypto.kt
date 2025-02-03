@@ -8,4 +8,5 @@ object RustCrypto {
     external fun newKeypair(): ByteArray
     external fun createCsr(keypair: ByteArray): ByteArray
     external fun verifyAccountCertificate(keypair: ByteArray, username: String, certificateBase64: String, serverPublicKey: String): Boolean
+    external fun accountSignature(keypair: ByteArray, username: String, nonce: String): String
 }

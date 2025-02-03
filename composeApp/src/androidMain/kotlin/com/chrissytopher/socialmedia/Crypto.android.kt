@@ -1,6 +1,8 @@
 package com.chrissytopher.socialmedia
 
 import java.nio.ByteBuffer
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 class AndroidKeypair(var public: ByteArray, var private: ByteArray) : Keypair {
     override fun serialize(): ByteArray {
@@ -35,4 +37,8 @@ actual fun createCsr(keypair: Keypair): ByteArray {
 
 actual fun verifyAccountCertificate(keypair: Keypair, username: String, certificateBase64: String, serverPublicKey: String): Boolean {
     return RustCrypto.verifyAccountCertificate(keypair.serialize(), username, certificateBase64, serverPublicKey)
+}
+
+actual fun accountSignature(keypair: ByteArray, username: String, nonce: String): String {
+    return RustCrypto.accountSignature(keypair, username, nonce)
 }
