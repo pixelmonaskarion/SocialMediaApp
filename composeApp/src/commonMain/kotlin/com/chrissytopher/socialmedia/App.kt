@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.HeartBroken
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +52,7 @@ enum class NavScreen(val selectedIcon: ImageVector, val unselectedIcon: ImageVec
     Home(Icons.Filled.Home, Icons.Outlined.Home),
     Login(Icons.Filled.Home, Icons.Outlined.Home, showInNavBar = false, hideNavBar = true),
     Settings(Icons.Filled.Settings, Icons.Outlined.Settings),
+    Account(Icons.Filled.AccountCircle, Icons.Outlined.AccountCircle)
 }
 
 @Composable
@@ -104,12 +108,15 @@ fun App() {
                     HomeScreen()
                 }
                 composable(route = NavScreen.Settings) {
-//                    SettingsScreen(currentTheme = currentTheme, onThemeChange = {newTheme -> currentTheme = newTheme})
+                    Settings()
                 }
                 composable(route = NavScreen.Login) {
                     Login() {
                         navigationStack.clearStack(NavScreen.Home)
                     }
+                }
+                composable(route = NavScreen.Account) {
+//                  AccountSettings()
                 }
             }
         }

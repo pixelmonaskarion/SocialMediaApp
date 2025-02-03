@@ -1,5 +1,6 @@
 package com.chrissytopher.socialmedia
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,11 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,7 +34,7 @@ fun HomeScreen() {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Social Media App", style = MaterialTheme.typography.titleLarge)
                 Row(
-                    Modifier.width(130.dp).height(130.dp).padding(20.dp, 0.dp),
+                    Modifier.width(130.dp).height(50.dp).padding(20.dp, 0.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Box(Modifier.size(45.dp).clip(CircleShape).selectable(false) {
@@ -48,6 +51,11 @@ fun HomeScreen() {
                             Modifier.align(Alignment.Center)
                         )
                     }
+                }
+            }
+            Row(Modifier.height(100.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.SpaceBetween) {
+                for(i in 1..5) {
+                    Icon(Icons.Rounded.AccountCircle, null, Modifier.size(100.dp))
                 }
             }
         }
