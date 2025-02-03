@@ -1,48 +1,37 @@
 package com.chrissytopher.socialmedia
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.HeartBroken
+import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.State
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import coil3.compose.AsyncImage
 import com.chrissytopher.socialmedia.navigation.NavigationController
 import com.chrissytopher.socialmedia.navigation.NavigationStack
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 val LocalPlatform: ProvidableCompositionLocal<Platform> = compositionLocalOf { error("no platform provided") }
 val LocalAuthenticationManager: ProvidableCompositionLocal<AuthenticationManager> = compositionLocalOf { error("no authentication manager provided") }
@@ -52,7 +41,8 @@ enum class NavScreen(val selectedIcon: ImageVector, val unselectedIcon: ImageVec
     Home(Icons.Filled.Home, Icons.Outlined.Home),
     Login(Icons.Filled.Home, Icons.Outlined.Home, showInNavBar = false, hideNavBar = true),
     Settings(Icons.Filled.Settings, Icons.Outlined.Settings),
-    Account(Icons.Filled.AccountCircle, Icons.Outlined.AccountCircle)
+    Account(Icons.Filled.AccountCircle, Icons.Outlined.AccountCircle),
+    CreatePost(Icons.Filled.Create, Icons.Outlined.Create),
 }
 
 @Composable
@@ -117,6 +107,9 @@ fun App() {
                 }
                 composable(route = NavScreen.Account) {
 //                  AccountSettings()
+                }
+                composable(route = NavScreen.CreatePost) {
+                    CreatePostScreen()
                 }
             }
         }
