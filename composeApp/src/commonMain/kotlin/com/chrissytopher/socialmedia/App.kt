@@ -9,16 +9,16 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.HeartBroken
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.rounded.AccountCircle
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -31,11 +31,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.chrissytopher.socialmedia.navigation.NavigationController
 import com.chrissytopher.socialmedia.navigation.NavigationStack
+import dev.icerock.moko.permissions.PermissionsController
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 val LocalPlatform: ProvidableCompositionLocal<Platform> = compositionLocalOf { error("no platform provided") }
 val LocalAuthenticationManager: ProvidableCompositionLocal<AuthenticationManager> = compositionLocalOf { error("no authentication manager provided") }
 val LocalNavHost = compositionLocalOf<NavigationStack<NavScreen>> { error("no nav host provided") }
+val LocalPermissionsController = compositionLocalOf<PermissionsController>{ error("no permissions controller provided") }
+val LocalSnackbarState = compositionLocalOf { SnackbarHostState() }
 
 enum class NavScreen(val selectedIcon: ImageVector, val unselectedIcon: ImageVector, val showInNavBar: Boolean = true, val hideNavBar: Boolean = false) {
     Home(Icons.Filled.Home, Icons.Outlined.Home),
@@ -70,46 +73,49 @@ fun AppBottomBar(currentScreenState: State<NavScreen>, select: (NavScreen) -> Un
 fun App() {
     val authManager = LocalAuthenticationManager.current
     val navigationStack : NavigationStack<NavScreen> = remember { NavigationStack(if (authManager.loggedIn()) NavScreen.Home else NavScreen.Login) }
-    CompositionLocalProvider(LocalNavHost provides navigationStack) {
-        Scaffold(
-            bottomBar = {
-                val currentNav by navigationStack.routeState
-                if (!currentNav.hideNavBar) {
-                    AppBottomBar(
-                        navigationStack.routeState
-                    ) {
-                        navigationStack.clearStack(NavScreen.Home)
-                        if (it != NavScreen.Home) {
-                            navigationStack.navigateTo(it)
+    MaterialTheme {
+        CompositionLocalProvider(LocalNavHost provides navigationStack) {
+            Scaffold(
+                bottomBar = {
+                    val currentNav by navigationStack.routeState
+                    if (!currentNav.hideNavBar) {
+                        AppBottomBar(
+                            navigationStack.routeState
+                        ) {
+                            navigationStack.clearStack(NavScreen.Home)
+                            if (it != NavScreen.Home) {
+                                navigationStack.navigateTo(it)
+                            }
                         }
                     }
-                }
-            }
-        ) { paddingValues ->
-            NavigationController(
-                navigationStack = navigationStack,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .imePadding()
+                },
+                snackbarHost = { SnackbarHost(LocalSnackbarState.current) }
+            ) { paddingValues ->
+                NavigationController(
+                    navigationStack = navigationStack,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .imePadding()
 
-            ) {
-                composable(route = NavScreen.Home) {
-                    HomeScreen()
-                }
-                composable(route = NavScreen.Settings) {
-                    Settings()
-                }
-                composable(route = NavScreen.Login) {
-                    Login() {
-                        navigationStack.clearStack(NavScreen.Home)
+                ) {
+                    composable(route = NavScreen.Home) {
+                        HomeScreen()
                     }
-                }
-                composable(route = NavScreen.Account) {
-//                  AccountSettings()
-                }
-                composable(route = NavScreen.CreatePost) {
-                    CreatePostScreen()
+                    composable(route = NavScreen.Settings) {
+                        Settings()
+                    }
+                    composable(route = NavScreen.Login) {
+                        Login() {
+                            navigationStack.clearStack(NavScreen.Home)
+                        }
+                    }
+                    composable(route = NavScreen.Account) {
+    //                  AccountSettings()
+                    }
+                    composable(route = NavScreen.CreatePost) {
+                        CreatePostScreen()
+                    }
                 }
             }
         }

@@ -2,12 +2,15 @@ package com.chrissytopher.socialmedia
 
 import android.content.Context
 import android.provider.Settings
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.liftric.kvault.KVault
+import dev.icerock.moko.geo.LocationTracker
+import dev.icerock.moko.permissions.PermissionsController
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -33,6 +36,12 @@ class AndroidPlatform(private val context: Context): Platform() {
     @Composable
     override fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
         androidx.activity.compose.BackHandler(enabled, onBack)
+    }
+
+    override fun getLocationTracker(permissionsController: PermissionsController): LocationTracker {
+        val tracker = LocationTracker(permissionsController)
+        tracker.bind(context as ComponentActivity)
+        return tracker
     }
 }
 

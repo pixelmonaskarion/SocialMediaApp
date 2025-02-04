@@ -48,6 +48,7 @@ class AuthenticationManager(private val platform: Platform) {
                 headers["X-Username"] = username
                 keypair?.let { keypair ->
                     val nonce = Clock.System.now().toEpochMilliseconds().toString()
+                    //TODO: put some random bytes at the end
                     headers["X-Nonce"] = nonce
                     headers["X-Auth-Signature"] = accountSignature(keypair, username, nonce)
                 }

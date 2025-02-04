@@ -9,6 +9,7 @@ import io.ktor.client.statement.bodyAsBytes
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -48,6 +49,15 @@ class ServerApi(private val httpClient: HttpClient = HttpClient(), private val a
         }.bodyAsText()
         return Json.decodeFromString<JsonObject>(res)["content_id"]?.jsonPrimitive?.contentOrNull
     }.getOrThrow()
+
+    suspend fun uploadPostInfo(info: String): Result<Unit> = runCatching {
+        val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/info") {
+            setBody(info)
+            contentType(ContentType.Application.Json)
+            authenticationManager.addAuthHeaders(this)
+        }
+        if (!res.status.isSuccess()) throw Exception("non-200 status: ${res.status} (${res.bodyAsText()})")
+    }
 }
 @Serializable
 data class CreateAccountRequest(

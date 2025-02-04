@@ -3,6 +3,8 @@ package com.chrissytopher.socialmedia
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.IntSize
 import com.liftric.kvault.KVault
+import dev.icerock.moko.geo.LocationTracker
+import dev.icerock.moko.permissions.PermissionsController
 
 abstract class Platform {
     abstract val name: String
@@ -14,6 +16,8 @@ abstract class Platform {
 
     @Composable
     abstract fun BackHandler(enabled: Boolean, onBack: () -> Unit)
+
+    abstract fun getLocationTracker(permissionsController: PermissionsController): LocationTracker
 }
 
 const val USERNAME_KEY = "USERNAME"

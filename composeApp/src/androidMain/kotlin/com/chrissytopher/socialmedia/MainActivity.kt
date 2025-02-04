@@ -4,21 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.Wallpapers
-import kotlin.math.log
+import dev.icerock.moko.permissions.PermissionsController
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,10 +16,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val platform = AndroidPlatform(this)
         val authManager = AuthenticationManager(platform)
+        val permissionsController = PermissionsController(this)
+        permissionsController.bind(this)
         setContent {
             CompositionLocalProvider(LocalPlatform provides platform) {
                 CompositionLocalProvider(LocalAuthenticationManager provides authManager) {
-                    App()
+                    CompositionLocalProvider(LocalPermissionsController provides permissionsController) {
+                        App()
+                    }
                 }
             }
         }

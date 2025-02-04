@@ -1,21 +1,85 @@
 package com.chrissytopher.socialmedia
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import dev.icerock.moko.geo.LatLng
+import dev.icerock.moko.permissions.Permission
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 @Composable
 fun CreatePostScreen() {
-    val platform = LocalPlatform.current
-    val coroutineScope = rememberCoroutineScope()
-    Button(onClick = {
-        coroutineScope.launch {
-            val contentId = platform.apiClient.uploadPostMedia("Hello World!".encodeToByteArray())
-            println("contentId: $contentId")
+    Column(Modifier.padding(10.dp)) {
+        val platform = LocalPlatform.current
+        val coroutineScope = rememberCoroutineScope()
+        var contentId: String? by remember { mutableStateOf(null) }
+        if (contentId == null) {
+            Button(onClick = {
+                coroutineScope.launch {
+                    contentId = platform.apiClient.uploadPostMedia("Hello World!".encodeToByteArray())
+                    println("contentId: $contentId")
+                }
+            }) {
+                Text("Create Test Post")
+            }
+        } else {
+            var location: LatLng? by key(contentId) { remember { mutableStateOf(null) } }
+            if (location == null) {
+                val permissionsController = LocalPermissionsController.current
+                val locationTracker = platform.getLocationTracker(permissionsController)
+                Button(onClick = {
+                    coroutineScope.launch { runCatching {
+                        if (!permissionsController.isPermissionGranted(Permission.LOCATION)) {
+                            permissionsController.providePermission(Permission.LOCATION)
+                        }
+                        println("starting tracking")
+                        locationTracker.startTracking()
+                        location = locationTracker.getLocationsFlow().firstOrNull()
+                        println("stopping tracking")
+                        locationTracker.stopTracking()
+                    }.getOrThrow() }
+                }) {
+                    Text("Get Location")
+                }
+            } else {
+                var postInfo by key(location) { remember { mutableStateOf(Json.encodeToString(JsonObject(hashMapOf("content_id" to JsonPrimitive(contentId), "location" to JsonPrimitive("${location?.longitude}|${location?.latitude}"))))) } }
+                OutlinedTextField(postInfo, onValueChange = {
+                    postInfo = it
+                })
+                val localSnackbar = LocalSnackbarState.current
+                Button(onClick = {
+                    coroutineScope.launch {
+                        val res = platform.apiClient.uploadPostInfo(postInfo)
+                        println("$res")
+                        if (res.isSuccess) {
+                            location = null
+                            contentId = null
+                            localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
+                        } else {
+                            localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
+                        }
+                    }
+                }, enabled = runCatching { Json.decodeFromString<JsonObject>(postInfo) }.isSuccess) {
+                    Text("Post!")
+                }
+            }
         }
-    }) {
-        Text("Create Test Post")
     }
 }
