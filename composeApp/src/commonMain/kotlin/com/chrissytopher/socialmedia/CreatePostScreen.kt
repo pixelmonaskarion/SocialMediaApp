@@ -15,10 +15,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.icerock.moko.geo.LatLng
-import dev.icerock.moko.permissions.Permission
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -34,7 +30,6 @@ fun CreatePostScreen() {
             Button(onClick = {
                 coroutineScope.launch {
                     contentId = platform.apiClient.uploadPostMedia("Hello World!".encodeToByteArray())
-                    println("contentId: $contentId")
                 }
             }) {
                 Text("Create Test Post")
@@ -42,24 +37,18 @@ fun CreatePostScreen() {
         } else {
             var location: LatLng? by key(contentId) { remember { mutableStateOf(null) } }
             if (location == null) {
-                val permissionsController = LocalPermissionsController.current
-                val locationTracker = platform.getLocationTracker(permissionsController)
+                val locationTracker = platform.getLocationTracker(LocalPermissionsController.current)
                 Button(onClick = {
-                    coroutineScope.launch { runCatching {
-                        if (!permissionsController.isPermissionGranted(Permission.LOCATION)) {
-                            permissionsController.providePermission(Permission.LOCATION)
-                        }
-                        println("starting tracking")
-                        locationTracker.startTracking()
-                        location = locationTracker.getLocationsFlow().firstOrNull()
-                        println("stopping tracking")
-                        locationTracker.stopTracking()
-                    }.getOrThrow() }
+                    coroutineScope.launch { location = getLocation(locationTracker) }
                 }) {
                     Text("Get Location")
                 }
             } else {
-                var postInfo by key(location) { remember { mutableStateOf(Json.encodeToString(JsonObject(hashMapOf("content_id" to JsonPrimitive(contentId), "location" to JsonPrimitive("${location?.longitude}|${location?.latitude}"))))) } }
+                var postInfo by key(location) { remember { mutableStateOf(Json.encodeToString(JsonObject(hashMapOf(
+                    "content_id" to JsonPrimitive(contentId),
+                    "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
+                    "username" to JsonPrimitive(platform.authenticationManager.username),
+                )))) } }
                 OutlinedTextField(postInfo, onValueChange = {
                     postInfo = it
                 })
@@ -67,7 +56,6 @@ fun CreatePostScreen() {
                 Button(onClick = {
                     coroutineScope.launch {
                         val res = platform.apiClient.uploadPostInfo(postInfo)
-                        println("$res")
                         if (res.isSuccess) {
                             location = null
                             contentId = null

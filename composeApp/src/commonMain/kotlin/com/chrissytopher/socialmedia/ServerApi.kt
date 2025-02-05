@@ -1,5 +1,6 @@
 package com.chrissytopher.socialmedia
 
+import dev.icerock.moko.geo.LatLng
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
@@ -43,7 +44,7 @@ class ServerApi(private val httpClient: HttpClient = HttpClient(), private val a
     }.getOrThrow()
 
     suspend fun uploadPostMedia(data: ByteArray): String? = runCatching {
-        val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/media") {
+        val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/post-media") {
             setBody(data)
             authenticationManager.addAuthHeaders(this)
         }.bodyAsText()
@@ -51,12 +52,33 @@ class ServerApi(private val httpClient: HttpClient = HttpClient(), private val a
     }.getOrThrow()
 
     suspend fun uploadPostInfo(info: String): Result<Unit> = runCatching {
-        val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/info") {
+        val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/post-info") {
             setBody(info)
             contentType(ContentType.Application.Json)
             authenticationManager.addAuthHeaders(this)
         }
         if (!res.status.isSuccess()) throw Exception("non-200 status: ${res.status} (${res.bodyAsText()})")
+    }
+
+    suspend fun getRecommendations(location: LatLng): Result<List<String>> = runCatching {
+        val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/recommendations?location=${locationFormatted(location)}") {
+            authenticationManager.addAuthHeaders(this)
+        }
+        return@runCatching Json.decodeFromString(res.bodyAsText())
+    }
+
+    suspend fun getPostInfo(contentId: String): Result<JsonObject> = runCatching {
+        val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/get-info?content_id=$contentId") {
+            authenticationManager.addAuthHeaders(this)
+        }
+        return@runCatching Json.decodeFromString(res.bodyAsText())
+    }
+
+    suspend fun getPostMedia(contentId: String): Result<ByteArray> = runCatching {
+        val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/get-media?content_id=$contentId") {
+            authenticationManager.addAuthHeaders(this)
+        }
+        return@runCatching res.bodyAsBytes()
     }
 }
 @Serializable
