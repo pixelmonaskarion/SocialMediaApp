@@ -16,5 +16,5 @@ suspend fun getLocation(locationTracker: LocationTracker): LatLng? = runCatching
     locationTracker.startTracking()
     val location = locationTracker.getLocationsFlow().firstOrNull()
     locationTracker.stopTracking()
-    return location
-}.getOrNull()
+    return@runCatching location
+}.getOrNullAndThrow()

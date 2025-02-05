@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.IntSize
 import com.liftric.kvault.KVault
 import dev.icerock.moko.geo.LocationTracker
 import dev.icerock.moko.permissions.PermissionsController
+import kotlinx.io.Source
 
 abstract class Platform {
     abstract val name: String
@@ -18,6 +19,8 @@ abstract class Platform {
     abstract fun BackHandler(enabled: Boolean, onBack: () -> Unit)
 
     abstract fun getLocationTracker(permissionsController: PermissionsController): LocationTracker
+
+    abstract suspend fun pickImages(): List<Source>
 }
 
 const val USERNAME_KEY = "USERNAME"

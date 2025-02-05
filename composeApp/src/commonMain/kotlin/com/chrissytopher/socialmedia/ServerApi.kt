@@ -5,6 +5,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsBytes
 import io.ktor.client.statement.bodyAsText
@@ -24,32 +25,38 @@ const val CREATE_ACCOUNT_LAMBDA_URL = "https://7vdsxbmbhjc4csljqcvu3bw4ou0gupnr.
 const val POST_UPLOAD_LAMBDA_URL = "https://vby32pkmko4kmlvjk4oq6othue0hkarn.lambda-url.us-west-2.on.aws"
 const val AUTH_SERVER_PUBLIC_KEY_URL = "https://social-media-account-provisioning-public-key.s3.us-west-2.amazonaws.com/server_public_key.der"
 
-class ServerApi(private val httpClient: HttpClient = HttpClient(), private val authenticationManager: AuthenticationManager) {
+class ServerApi(val httpClient: HttpClient = HttpClient(), private val authenticationManager: AuthenticationManager) {
 
     suspend fun greet(): String {
         return httpClient.get("$SERVER_ADDRESS/").bodyAsText()
     }
 
-    suspend fun createAccount(req: CreateAccountRequest): CreateAccountResponse? = runCatching {
+    suspend fun createAccount(req: CreateAccountRequest): Result<CreateAccountResponse> = runCatching {
         println(Json.encodeToString(req))
         val res = httpClient.post(CREATE_ACCOUNT_LAMBDA_URL) {
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(req))
         }.bodyAsText()
-        return Json.decodeFromString(res)
-    }.getOrThrow()
+        return@runCatching Json.decodeFromString(res)
+    }
 
-    suspend fun authServerPublicKey(): String? = runCatching {
-        return httpClient.get(AUTH_SERVER_PUBLIC_KEY_URL).bodyAsText()
-    }.getOrThrow()
+    suspend fun authServerPublicKey(): Result<String> = runCatching {
+        return@runCatching httpClient.get(AUTH_SERVER_PUBLIC_KEY_URL).bodyAsText()
+    }
 
-    suspend fun uploadPostMedia(data: ByteArray): String? = runCatching {
-        val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/post-media") {
-            setBody(data)
+    suspend fun uploadPostMedia(data: ByteArray): Result<String> = runCatching {
+        val getRes = httpClient.post("$POST_UPLOAD_LAMBDA_URL/post-media") {
             authenticationManager.addAuthHeaders(this)
         }.bodyAsText()
-        return Json.decodeFromString<JsonObject>(res)["content_id"]?.jsonPrimitive?.contentOrNull
-    }.getOrThrow()
+        val json = Json.decodeFromString<JsonObject>(getRes)
+        val contentId = json["content_id"]!!.jsonPrimitive.content
+        val uploadUrl = json["url"]!!.jsonPrimitive.content
+        val uploadRes = httpClient.put(uploadUrl) {
+            setBody(data)
+        }
+
+        return@runCatching contentId
+    }
 
     suspend fun uploadPostInfo(info: String): Result<Unit> = runCatching {
         val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/post-info") {
@@ -74,11 +81,11 @@ class ServerApi(private val httpClient: HttpClient = HttpClient(), private val a
         return@runCatching Json.decodeFromString(res.bodyAsText())
     }
 
-    suspend fun getPostMedia(contentId: String): Result<ByteArray> = runCatching {
+    suspend fun getPostMediaUrl(contentId: String): Result<String> = runCatching {
         val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/get-media?content_id=$contentId") {
             authenticationManager.addAuthHeaders(this)
         }
-        return@runCatching res.bodyAsBytes()
+        return@runCatching res.bodyAsText()
     }
 }
 @Serializable
@@ -96,3 +103,8 @@ data class CreateAccountResponse(
     val errorMessage: String?,
     val certificate: String?,
 )
+
+fun <T> Result<T>.getOrNullAndThrow(): T? {
+    exceptionOrNull()?.printStackTrace()
+    return getOrNull()
+}

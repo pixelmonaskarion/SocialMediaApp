@@ -18,11 +18,11 @@ class AuthenticationManager(private val platform: Platform) {
         val keypair = newKeypair()
         val csrDer = createCsr(keypair)
         val reqBody = CreateAccountRequest(username, email, Base64.encode(csrDer))
-        val res = platform.apiClient.createAccount(reqBody) ?: return "Request failed, try again"
+        val res = platform.apiClient.createAccount(reqBody).getOrNullAndThrow() ?: return "Request failed, try again"
         if (res.errorCode != 0 || res.errorMessage != null || res.certificate == null) {
             return res.errorMessage?.let { "Something went wrong: $it (${res.errorCode})" } ?: "An unknown error occurred"
         }
-        val serverPublicKey = platform.apiClient.authServerPublicKey() ?: return "Something went wrong, try again later"
+        val serverPublicKey = platform.apiClient.authServerPublicKey().getOrNullAndThrow() ?: return "Something went wrong, try again later"
         val verified = verifyAccountCertificate(keypair, username, res.certificate, serverPublicKey)
         if (!verified) {
             return "Something went wrong, try again"

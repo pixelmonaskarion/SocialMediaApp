@@ -3,6 +3,8 @@ package com.chrissytopher.socialmedia
 import android.content.Context
 import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -15,6 +17,12 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+import kotlinx.io.Source
+import kotlin.coroutines.coroutineContext
 
 class AndroidPlatform(private val context: Context): Platform() {
     override val name: String = "Android ${android.os.Build.VERSION.SDK_INT}"
@@ -42,6 +50,15 @@ class AndroidPlatform(private val context: Context): Platform() {
         val tracker = LocationTracker(permissionsController)
         tracker.bind(context as ComponentActivity)
         return tracker
+    }
+
+    override suspend fun pickImages(): List<Source> {
+        val channel = Channel<List<Source>>()
+        MainActivity.pickedImages = {
+            CoroutineScope(Dispatchers.IO).launch { channel.send(it) }
+        }
+        ((context as MainActivity).imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)))
+        return channel.receive()
     }
 }
 

@@ -1,5 +1,6 @@
 package com.chrissytopher.socialmedia
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +27,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,9 +38,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.rememberAsyncImagePainter
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsBytes
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
 fun HomeScreen() {
@@ -86,11 +97,18 @@ fun HomeScreen() {
                     items(postIds ?: emptyList()) { contentId ->
                         val itemCoroutineScope = rememberCoroutineScope()
                         var postInfo: JsonObject? by remember { mutableStateOf(null) }
-                        var postMedia: ByteArray? by remember { mutableStateOf(null) }
+                        var postMime: String? by remember { mutableStateOf(null) }
+                        var postMedia: Any? by remember { mutableStateOf(null) }
                         LaunchedEffect(contentId) {
                             itemCoroutineScope.launch {
-                                postInfo = platform.apiClient.getPostInfo(contentId).getOrThrow()
-                                postMedia = platform.apiClient.getPostMedia(contentId).getOrThrow()
+                                postInfo = platform.apiClient.getPostInfo(contentId).getOrNullAndThrow() ?: return@launch
+                                postMime = postInfo?.get("mime")?.jsonPrimitive?.contentOrNull ?: "text/plain"
+                                val postMediaUrl = platform.apiClient.getPostMediaUrl(contentId).getOrNullAndThrow() ?: return@launch
+                                if (postMime == "text/plain") {
+                                    postMedia = platform.apiClient.httpClient.get(postMediaUrl).bodyAsText()
+                                } else if (postMime!!.startsWith("image/")) {
+                                    postMedia = postMediaUrl
+                                }
                             }
                         }
                         if (postInfo != null) {
@@ -99,7 +117,20 @@ fun HomeScreen() {
                             CircularProgressIndicator()
                         }
                         if (postMedia != null) {
-                            postMedia?.decodeToString()?.let { Text(it) }
+                            if (postMime?.startsWith("text/") == true) {
+                                (postMedia as? String)?.let { Text(it) }
+                            }
+                            if (postMime?.startsWith("image/") == true) {
+                                val painter = key(postMedia) { rememberAsyncImagePainter(postMedia, onState = {
+                                    (it as? AsyncImagePainter.State.Error)?.result?.throwable?.printStackTrace()
+                                }) }
+                                val painterStatus by painter.state.collectAsState()
+                                if (painterStatus is AsyncImagePainter.State.Loading) {
+                                    CircularProgressIndicator()
+                                } else {
+                                    Image(painter, "post media")
+                                }
+                            }
                         } else {
                             CircularProgressIndicator()
                         }

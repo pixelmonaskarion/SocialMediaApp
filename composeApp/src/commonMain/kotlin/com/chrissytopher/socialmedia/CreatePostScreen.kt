@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.icerock.moko.geo.LatLng
 import kotlinx.coroutines.launch
+import kotlinx.io.readByteArray
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -26,13 +27,25 @@ fun CreatePostScreen() {
         val platform = LocalPlatform.current
         val coroutineScope = rememberCoroutineScope()
         var contentId: String? by remember { mutableStateOf(null) }
+        val mime = remember { mutableStateOf("text/plain") }
         if (contentId == null) {
             Button(onClick = {
                 coroutineScope.launch {
-                    contentId = platform.apiClient.uploadPostMedia("Hello World!".encodeToByteArray())
+                    contentId = platform.apiClient.uploadPostMedia("Hello World!".encodeToByteArray()).getOrNullAndThrow()
                 }
             }) {
                 Text("Create Test Post")
+            }
+            Button(onClick = {
+                coroutineScope.launch {
+                    platform.pickImages().firstOrNull()?.let {pickedImage ->
+                        mime.value = "image/?"
+                        contentId = platform.apiClient.uploadPostMedia(pickedImage.readByteArray()).getOrNullAndThrow()
+                        pickedImage.close()
+                    }
+                }
+            }) {
+                Text("Create Image Post")
             }
         } else {
             var location: LatLng? by key(contentId) { remember { mutableStateOf(null) } }
@@ -48,6 +61,7 @@ fun CreatePostScreen() {
                     "content_id" to JsonPrimitive(contentId),
                     "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
                     "username" to JsonPrimitive(platform.authenticationManager.username),
+                    "mime" to JsonPrimitive(mime.value)
                 )))) } }
                 OutlinedTextField(postInfo, onValueChange = {
                     postInfo = it
