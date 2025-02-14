@@ -1,11 +1,16 @@
 package com.chrissytopher.socialmedia
 
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +26,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
+
 @Composable
 fun CreatePostScreen() {
     Column(Modifier.padding(10.dp)) {
@@ -28,44 +34,32 @@ fun CreatePostScreen() {
         val coroutineScope = rememberCoroutineScope()
         var contentId: String? by remember { mutableStateOf(null) }
         val mime = remember { mutableStateOf("text/plain") }
+        var image: MutableState<ByteArray?> = remember { mutableStateOf(null) }
         if (contentId == null) {
-            Button(onClick = {
-                coroutineScope.launch {
-                    contentId = platform.apiClient.uploadPostMedia("Hello World!".encodeToByteArray()).getOrNullAndThrow()
-                }
-            }) {
-                Text("Create Test Post")
-            }
-            Button(onClick = {
                 coroutineScope.launch {
                     platform.pickImages().firstOrNull()?.let {pickedImage ->
                         mime.value = "image/?"
-                        contentId = platform.apiClient.uploadPostMedia(pickedImage.readByteArray()).getOrNullAndThrow()
+                        image.value = pickedImage.readByteArray()
+                        contentId = platform.apiClient.uploadPostMedia(image.value!!).getOrNullAndThrow()
                         pickedImage.close()
                     }
                 }
-            }) {
-                Text("Create Image Post")
             }
-        } else {
+          else {
             var location: LatLng? by key(contentId) { remember { mutableStateOf(null) } }
-            if (location == null) {
                 val locationTracker = platform.getLocationTracker(LocalPermissionsController.current)
-                Button(onClick = {
-                    coroutineScope.launch { location = getLocation(locationTracker) }
-                }) {
-                    Text("Get Location")
-                }
-            } else {
+                coroutineScope.launch { location = getLocation(locationTracker) }
+                var caption = ""
+                OutlinedTextField(caption, onValueChange = {
+                    caption = it
+                }, label = { Text("Caption") })
                 var postInfo by key(location) { remember { mutableStateOf(Json.encodeToString(JsonObject(hashMapOf(
                     "content_id" to JsonPrimitive(contentId),
+                    "caption" to JsonPrimitive(caption),
                     "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
                     "username" to JsonPrimitive(platform.authenticationManager.username),
                     "mime" to JsonPrimitive(mime.value)
                 )))) } }
-                OutlinedTextField(postInfo, onValueChange = {
-                    postInfo = it
-                })
                 val localSnackbar = LocalSnackbarState.current
                 Button(onClick = {
                     coroutineScope.launch {
@@ -83,5 +77,5 @@ fun CreatePostScreen() {
                 }
             }
         }
-    }
+
 }
