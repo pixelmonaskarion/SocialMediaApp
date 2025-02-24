@@ -68,7 +68,7 @@ class ServerApi(val httpClient: HttpClient = HttpClient(), private val authentic
     }
 
     suspend fun getRecommendations(location: LatLng): Result<List<String>> = runCatching {
-        val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/recommendations?location=${locationFormatted(location)}") {
+        val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/recommendations?location=${locationFormatted(location)}&sort_by=location") {
             authenticationManager.addAuthHeaders(this)
         }
         return@runCatching Json.decodeFromString(res.bodyAsText())

@@ -88,7 +88,7 @@ fun HomeScreen() {
             LaunchedEffect(true) {
                 coroutineScope.launch {
                     val location = getLocation(locationTracker)
-                    postIds = location?.let { platform.apiClient.getRecommendations(it).getOrThrow() }
+                    postIds = location?.let { platform.apiClient.getRecommendations(it).getOrNullAndThrow() }
                 }
             }
             println("$postIds")
