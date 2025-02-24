@@ -1,11 +1,16 @@
 package com.chrissytopher.socialmedia
 
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -32,66 +37,56 @@ fun CreatePostScreen() {
         val coroutineScope = rememberCoroutineScope()
         val contentIdState: MutableStateFlow<String?> = remember { MutableStateFlow(null) }
         val contentId by contentIdState.collectAsState(null)
+        println("content-id: |${contentId}|")
         val mime = remember { mutableStateOf("text/plain") }
         val image: MutableState<ByteArray?> = remember { mutableStateOf(null) }
-        if (contentId == null) {
-            Button(onClick = {
+        LaunchedEffect(contentId) {
+            if (contentId == null) {
                 coroutineScope.launch {
-                    platform.pickImages().firstOrNull()?.let {pickedImage ->
+                    platform.pickImages().firstOrNull()?.let { pickedImage ->
+                        println("sigma image")
+                        contentIdState.value = ""
                         mime.value = "image/?"
                         image.value = pickedImage.readByteArray()
-                        contentIdState.value = ""
                         contentIdState.value = platform.apiClient.uploadPostMedia(image.value!!).getOrNullAndThrow()
                         pickedImage.close()
                     }
                 }
-            }) {
-                Text("Select Image")
             }
-        } else {
+        }
+        if (contentId != null) {
             var location: LatLng? by key(contentId) { remember { mutableStateOf(null) } }
             val locationTracker = platform.getLocationTracker(LocalPermissionsController.current)
-            coroutineScope.launch { location = getLocation(locationTracker) }
+            LaunchedEffect(location) {
+                if (location == null) {
+                    launch { location = getLocation(locationTracker) }
+                }
+            }
             var caption by remember { mutableStateOf("") }
             OutlinedTextField(caption, onValueChange = {
                 caption = it
             }, label = { Text("Caption") })
+            var postInfo by key(location) { remember { mutableStateOf(Json.encodeToString(JsonObject(hashMapOf(
+                "content_id" to JsonPrimitive(contentId),
+                "caption" to JsonPrimitive(caption),
+                "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
+                "username" to JsonPrimitive(platform.authenticationManager.username),
+                "mime" to JsonPrimitive(mime.value)
+            )))) } }
+            println("postInfo: $postInfo")
             val localSnackbar = LocalSnackbarState.current
             Button(onClick = {
                 coroutineScope.launch {
-                    var finished = false
-                    val upload = suspend {
-                        val postInfo = Json.encodeToString(JsonObject(hashMapOf(
-                            "content_id" to JsonPrimitive(contentId),
-                            "caption" to JsonPrimitive(caption),
-                            "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
-                            "username" to JsonPrimitive(platform.authenticationManager.username),
-                            "mime" to JsonPrimitive(mime.value)
-                        )))
-                        println("post info: $postInfo")
-                        val res = platform.apiClient.uploadPostInfo(postInfo)
-                        if (res.isSuccess) {
-                            location = null
-                            contentIdState.value = null
-                            localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
-                        } else {
-                            localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
-                        }
-                    }
-                    if (contentId == null || contentId == "") {
-                        println("collecting state")
-                        contentIdState.collect {
-                            if (contentId != null && contentId != "" && !finished) {
-                                upload()
-                                finished = true
-                            }
-                        }
+                    val res = platform.apiClient.uploadPostInfo(postInfo)
+                    if (res.isSuccess) {
+                        location = null
+                        contentIdState.value = null
+                        localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
                     } else {
-                        println("nah we chilling")
-                        upload()
+                        localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
                     }
                 }
-            }) {
+            }, enabled = runCatching { Json.decodeFromString<JsonObject>(postInfo) }.isSuccess) {
                 Text("Post!")
             }
         }
