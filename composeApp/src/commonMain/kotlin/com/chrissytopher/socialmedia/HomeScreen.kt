@@ -97,42 +97,21 @@ fun HomeScreen() {
                     items(postIds ?: emptyList()) { contentId ->
                         val itemCoroutineScope = rememberCoroutineScope()
                         var postInfo: JsonObject? by remember { mutableStateOf(null) }
-                        var postMime: String? by remember { mutableStateOf(null) }
                         var postMedia: Any? by remember { mutableStateOf(null) }
                         LaunchedEffect(contentId) {
                             itemCoroutineScope.launch {
                                 postInfo = platform.apiClient.getPostInfo(contentId).getOrNullAndThrow() ?: return@launch
-                                postMime = postInfo?.get("mime")?.jsonPrimitive?.contentOrNull ?: "text/plain"
                                 val postMediaUrl = platform.apiClient.getPostMediaUrl(contentId).getOrNullAndThrow() ?: return@launch
-                                if (postMime == "text/plain") {
+                                val mime = postInfo?.get("mime")?.jsonPrimitive?.contentOrNull ?: "text/plain"
+                                if (mime == "text/plain") {
                                     postMedia = platform.apiClient.httpClient.get(postMediaUrl).bodyAsText()
-                                } else if (postMime!!.startsWith("image/")) {
+                                } else if (mime.startsWith("image/")) {
                                     postMedia = postMediaUrl
                                 }
                             }
                         }
-                        if (postInfo != null) {
-                            Text(Json.encodeToString(postInfo))
-                        } else {
-                            CircularProgressIndicator()
-                        }
-                        if (postMedia != null) {
-                            if (postMime?.startsWith("text/") == true) {
-                                (postMedia as? String)?.let { Text(it) }
-                            }
-                            if (postMime?.startsWith("image/") == true) {
-                                val painter = key(postMedia) { rememberAsyncImagePainter(postMedia, onState = {
-                                    (it as? AsyncImagePainter.State.Error)?.result?.throwable?.printStackTrace()
-                                }) }
-                                val painterStatus by painter.state.collectAsState()
-                                if (painterStatus is AsyncImagePainter.State.Loading) {
-                                    CircularProgressIndicator()
-                                } else {
-                                    Image(painter, "post media")
-                                }
-                            }
-                        } else {
-                            CircularProgressIndicator()
+                        postInfo?.let {
+                            Post(it, postMedia)
                         }
                     }
                 }
