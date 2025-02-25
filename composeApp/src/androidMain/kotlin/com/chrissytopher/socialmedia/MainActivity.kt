@@ -9,11 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts.PickMultipleVis
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.tooling.preview.Preview
 import dev.icerock.moko.permissions.PermissionsController
 import kotlinx.io.Source
 import kotlinx.io.asSource
 import kotlinx.io.buffered
+import kotlinx.io.files.Path
 
 class MainActivity : ComponentActivity() {
     companion object{
@@ -36,6 +38,7 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(LocalPlatform provides platform) {
                 CompositionLocalProvider(LocalAuthenticationManager provides authManager) {
                     CompositionLocalProvider(LocalPermissionsController provides permissionsController) {
+                        CompositionLocalProvider(LocalCacheManager provides CacheManager(Path(cacheDir.absolutePath), rememberCoroutineScope())) { }
                         App()
                     }
                 }
