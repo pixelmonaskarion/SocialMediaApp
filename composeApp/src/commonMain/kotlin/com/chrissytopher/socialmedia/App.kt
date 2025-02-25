@@ -112,7 +112,7 @@ fun App() {
                         }
                     }
                     composable(route = NavScreen.Account) {
-    //                  AccountSettings()
+                        AccountSettingScreen()
                     }
                     composable(route = NavScreen.CreatePost) {
                         CreatePostScreen()
