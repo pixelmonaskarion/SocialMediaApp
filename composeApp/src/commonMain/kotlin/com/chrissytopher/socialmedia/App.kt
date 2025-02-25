@@ -36,6 +36,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 val LocalPlatform: ProvidableCompositionLocal<Platform> = compositionLocalOf { error("no platform provided") }
 val LocalAuthenticationManager: ProvidableCompositionLocal<AuthenticationManager> = compositionLocalOf { error("no authentication manager provided") }
+val LocalCacheManager: ProvidableCompositionLocal<CacheManager> = compositionLocalOf { error("no cache manager provided") }
 val LocalNavHost = compositionLocalOf<NavigationStack<NavScreen>> { error("no nav host provided") }
 val LocalPermissionsController = compositionLocalOf<PermissionsController>{ error("no permissions controller provided") }
 val LocalSnackbarState = compositionLocalOf { SnackbarHostState() }

@@ -104,7 +104,8 @@ data class CreateAccountResponse(
     val certificate: String?,
 )
 
-fun <T> Result<T>.getOrNullAndThrow(): T? {
+fun <T> Result<T>.getOrNullAndThrow(message: String = ""): T? {
+    println("$message:")
     exceptionOrNull()?.printStackTrace()
     return getOrNull()
 }

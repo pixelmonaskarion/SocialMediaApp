@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
@@ -30,10 +31,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -82,7 +85,9 @@ fun HomeScreen() {
                 }
             }
             val platform = LocalPlatform.current
+            val cacheManager = LocalCacheManager.current
             var postIds: List<String>? by remember { mutableStateOf(null) }
+            val posts: SnapshotStateList<Pair<JsonObject?, ByteArray?>> = key(postIds) { remember { mutableStateListOf(*(postIds?.map { Pair(null, null) }?.toTypedArray() ?: emptyArray())) } }
             val coroutineScope = rememberCoroutineScope()
             val locationTracker = platform.getLocationTracker(LocalPermissionsController.current)
             LaunchedEffect(true) {
@@ -91,27 +96,37 @@ fun HomeScreen() {
                     postIds = location?.let { platform.apiClient.getRecommendations(it).getOrNullAndThrow() }
                 }
             }
-            println("$postIds")
             postIds?.let {
                 LazyColumn {
-                    items(postIds ?: emptyList()) { contentId ->
+                    itemsIndexed(postIds ?: emptyList()) { i, contentId ->
                         val itemCoroutineScope = rememberCoroutineScope()
-                        var postInfo: JsonObject? by remember { mutableStateOf(null) }
-                        var postMedia: Any? by remember { mutableStateOf(null) }
+                        val (postInfo, postMedia) = posts[i]
                         LaunchedEffect(contentId) {
                             itemCoroutineScope.launch {
-                                postInfo = platform.apiClient.getPostInfo(contentId).getOrNullAndThrow() ?: return@launch
-                                val postMediaUrl = platform.apiClient.getPostMediaUrl(contentId).getOrNullAndThrow() ?: return@launch
-                                val mime = postInfo?.get("mime")?.jsonPrimitive?.contentOrNull ?: "text/plain"
-                                if (mime == "text/plain") {
-                                    postMedia = platform.apiClient.httpClient.get(postMediaUrl).bodyAsText()
-                                } else if (mime.startsWith("image/")) {
-                                    postMedia = postMediaUrl
+                                var newPostInfo = cacheManager.getCachedPostInfo(contentId)
+                                if (newPostInfo == null) {
+                                    newPostInfo = platform.apiClient.getPostInfo(contentId).getOrNullAndThrow() ?: return@launch
+                                    cacheManager.coroutineScope.launch {
+                                        cacheManager.cacheInfo(contentId, newPostInfo)
+                                    }
                                 }
+                                posts[i] = Pair(newPostInfo, postMedia)
+                                var media: ByteArray? = cacheManager.getCachedPostMedia(contentId)
+                                if (media == null) {
+                                    val postMediaUrl = platform.apiClient.getPostMediaUrl(contentId)
+                                        .getOrNullAndThrow() ?: return@launch
+                                    media = platform.apiClient.httpClient.get(postMediaUrl).bodyAsBytes()
+                                    cacheManager.coroutineScope.launch {
+                                        cacheManager.cacheMedia(contentId, media)
+                                    }
+                                }
+                                posts[i] = Pair(newPostInfo, media)
                             }
                         }
-                        postInfo?.let {
-                            Post(it, postMedia)
+                        key(contentId) {
+                            postInfo?.let {
+                                Post(it, postMedia)
+                            }
                         }
                     }
                 }
