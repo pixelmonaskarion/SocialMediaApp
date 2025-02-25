@@ -38,8 +38,9 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(LocalPlatform provides platform) {
                 CompositionLocalProvider(LocalAuthenticationManager provides authManager) {
                     CompositionLocalProvider(LocalPermissionsController provides permissionsController) {
-                        CompositionLocalProvider(LocalCacheManager provides CacheManager(Path(cacheDir.absolutePath), rememberCoroutineScope())) { }
-                        App()
+                        CompositionLocalProvider(LocalCacheManager provides CacheManager(Path(cacheDir.absolutePath), rememberCoroutineScope())) {
+                            App()
+                        }
                     }
                 }
             }
