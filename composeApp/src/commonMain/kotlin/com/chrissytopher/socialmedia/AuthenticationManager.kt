@@ -33,7 +33,8 @@ class AuthenticationManager(private val platform: Platform) {
         platform.kvault.set(ACCOUNT_CERTIFICATE_KEY, Base64.decode(res.certificate))
         return null
     }
-
+    val email: String?
+        get() = platform.kvault.string(EMAIL_KEY)
     val username: String?
         get() = platform.kvault.string(USERNAME_KEY)
     val certificate: ByteArray?
