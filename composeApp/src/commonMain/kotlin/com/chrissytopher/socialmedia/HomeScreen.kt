@@ -115,7 +115,7 @@ fun HomeScreen() {
                                 if (media == null) {
                                     val postMediaUrl = platform.apiClient.getPostMediaUrl(contentId)
                                         .getOrNullAndThrow() ?: return@launch
-                                    media = platform.apiClient.httpClient.get(postMediaUrl).bodyAsBytes()
+                                    media = runCatching { platform.apiClient.httpClient.get(postMediaUrl).bodyAsBytes() }.getOrNullAndThrow("media download failed") ?: return@launch
                                     cacheManager.coroutineScope.launch {
                                         cacheManager.cacheMedia(contentId, media)
                                     }
