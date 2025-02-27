@@ -44,7 +44,6 @@ fun CreatePostScreen() {
             if (contentId == null) {
                 coroutineScope.launch {
                     platform.pickImages().firstOrNull()?.let { pickedImage ->
-                        println("sigma image")
                         contentIdState.value = ""
                         mime.value = "image/?"
                         image.value = pickedImage.readByteArray()
