@@ -21,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.chrissytopher.socialmedia.navigation.NavigationStack
 import dev.icerock.moko.geo.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -31,7 +32,7 @@ import kotlinx.serialization.json.JsonPrimitive
 
 
 @Composable
-fun CreatePostScreen(viewModel: AppViewModel) {
+fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>) {
     Column(Modifier.padding(10.dp)) {
         val platform = LocalPlatform.current
         val coroutineScope = rememberCoroutineScope()
@@ -43,7 +44,11 @@ fun CreatePostScreen(viewModel: AppViewModel) {
         LaunchedEffect(contentId) {
             if (contentId == null) {
                 coroutineScope.launch {
-                    platform.pickImages().firstOrNull()?.let { pickedImage ->
+                    val pickedImageOrNah = platform.pickImages().firstOrNull()
+                    if (pickedImageOrNah == null) {
+                        navHost.popStack()
+                    }
+                    pickedImageOrNah?.let { pickedImage ->
                         contentIdState.value = ""
                         mime.value = "image/?"
                         image.value = pickedImage.readByteArray()
