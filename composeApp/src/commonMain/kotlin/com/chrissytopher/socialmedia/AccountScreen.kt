@@ -15,16 +15,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun AccountSettingScreen() {
+fun AccountSettingScreen(viewModel: AppViewModel) {
     Column(Modifier.padding(10.dp)) {
         val platform = LocalPlatform.current
-        val authManager = LocalAuthenticationManager.current
         val coroutineScope = rememberCoroutineScope()
         var username: String? by remember { mutableStateOf(null)}
         var email: String? by remember {mutableStateOf(null)}
-        if (authManager.loggedIn()){
-            username = authManager.username
-            email = authManager.email
+        if (viewModel.authenticationManager.loggedIn()){
+            username = viewModel.authenticationManager.username
+            email = viewModel.authenticationManager.email
         }
         username?.let { Text(it, style = MaterialTheme.typography.titleLarge) }
         email?.let { Text(it, style = MaterialTheme.typography.titleLarge)}

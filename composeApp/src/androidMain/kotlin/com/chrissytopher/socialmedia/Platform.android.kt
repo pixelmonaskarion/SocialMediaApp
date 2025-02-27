@@ -24,20 +24,12 @@ import kotlinx.coroutines.launch
 import kotlinx.io.Source
 import kotlin.coroutines.coroutineContext
 
-class AndroidPlatform(private val context: Context): Platform() {
+class AndroidPlatform(private val mainActivity: MainActivity) : Platform {
     override val name: String = "Android ${android.os.Build.VERSION.SDK_INT}"
-    override val apiClient = ServerApi(
-        HttpClient(OkHttp) {
-            install(ContentNegotiation) {
-                json()
-            }
-        }, authenticationManager
-    )
-    override val kvault = KVault(context)
 
     override fun livingInFearOfBackGestures(): Boolean {
         //https://www.b4x.com/android/forum/threads/solved-how-to-determine-users-system-navigation-mode-back-button-or-side-swipe.159347/
-        val navigationMode = Settings.Secure.getInt(context.contentResolver, "navigation_mode")
+        val navigationMode = Settings.Secure.getInt(mainActivity.contentResolver, "navigation_mode")
         return (navigationMode == 2)
     }
 
@@ -46,18 +38,12 @@ class AndroidPlatform(private val context: Context): Platform() {
         androidx.activity.compose.BackHandler(enabled, onBack)
     }
 
-    override fun getLocationTracker(permissionsController: PermissionsController): LocationTracker {
-        val tracker = LocationTracker(permissionsController)
-        tracker.bind(context as ComponentActivity)
-        return tracker
-    }
-
     override suspend fun pickImages(): List<Source> {
         val channel = Channel<List<Source>>()
         MainActivity.pickedImages = {
             CoroutineScope(Dispatchers.IO).launch { channel.send(it) }
         }
-        ((context as MainActivity).imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)))
+        mainActivity.imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         return channel.receive()
     }
 }

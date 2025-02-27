@@ -2,6 +2,7 @@ package com.chrissytopher.socialmedia
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Favorite
@@ -19,12 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun Settings () {
     var selectedLikeIcon by remember { mutableStateOf(1) }
     Column {
-        Text("Like Icon:")
+        Text("Like Icon:", Modifier.padding(10.dp, 0.dp))
         Row{
             ElevatedFilterChip(selected = selectedLikeIcon == 1, onClick = { selectedLikeIcon = 1 }, label = { Icon(if (selectedLikeIcon != 1) {Icons.Outlined.FavoriteBorder} else {Icons.Outlined.Favorite}, null) })
             ElevatedFilterChip(selected = selectedLikeIcon == 2, onClick = { selectedLikeIcon = 2 }, label = { Icon(if (selectedLikeIcon != 2) {Icons.Outlined.ThumbUp} else {Icons.Sharp.ThumbUp}, null) })

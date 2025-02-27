@@ -54,7 +54,7 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(viewModel: AppViewModel) {
     Box(Modifier.fillMaxSize().padding(10.dp)) {
         Column {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -85,15 +85,13 @@ fun HomeScreen() {
                 }
             }
             val platform = LocalPlatform.current
-            val cacheManager = LocalCacheManager.current
             var postIds: List<String>? by remember { mutableStateOf(null) }
             val posts: SnapshotStateList<Pair<JsonObject?, ByteArray?>> = key(postIds) { remember { mutableStateListOf(*(postIds?.map { Pair(null, null) }?.toTypedArray() ?: emptyArray())) } }
             val coroutineScope = rememberCoroutineScope()
-            val locationTracker = platform.getLocationTracker(LocalPermissionsController.current)
             LaunchedEffect(true) {
                 coroutineScope.launch {
-                    val location = getLocation(locationTracker)
-                    postIds = location?.let { platform.apiClient.getRecommendations(it).getOrNullAndThrow() }
+                    val location = getLocation(viewModel.locationTracker)
+                    postIds = location?.let { viewModel.apiClient.getRecommendations(it).getOrNullAndThrow() }
                 }
             }
             postIds?.let {
@@ -103,21 +101,21 @@ fun HomeScreen() {
                         val (postInfo, postMedia) = posts[i]
                         LaunchedEffect(contentId) {
                             itemCoroutineScope.launch {
-                                var newPostInfo = cacheManager.getCachedPostInfo(contentId)
+                                var newPostInfo = viewModel.cacheManager.getCachedPostInfo(contentId)
                                 if (newPostInfo == null) {
-                                    newPostInfo = platform.apiClient.getPostInfo(contentId).getOrNullAndThrow() ?: return@launch
-                                    cacheManager.coroutineScope.launch {
-                                        cacheManager.cacheInfo(contentId, newPostInfo)
+                                    newPostInfo = viewModel.apiClient.getPostInfo(contentId).getOrNullAndThrow() ?: return@launch
+                                    viewModel.cacheManager.coroutineScope.launch {
+                                        viewModel.cacheManager.cacheInfo(contentId, newPostInfo)
                                     }
                                 }
                                 posts[i] = Pair(newPostInfo, postMedia)
-                                var media: ByteArray? = cacheManager.getCachedPostMedia(contentId)
+                                var media: ByteArray? = viewModel.cacheManager.getCachedPostMedia(contentId)
                                 if (media == null) {
-                                    val postMediaUrl = platform.apiClient.getPostMediaUrl(contentId)
+                                    val postMediaUrl = viewModel.apiClient.getPostMediaUrl(contentId)
                                         .getOrNullAndThrow() ?: return@launch
-                                    media = runCatching { platform.apiClient.httpClient.get(postMediaUrl).bodyAsBytes() }.getOrNullAndThrow("media download failed") ?: return@launch
-                                    cacheManager.coroutineScope.launch {
-                                        cacheManager.cacheMedia(contentId, media)
+                                    media = runCatching { viewModel.apiClient.httpClient.get(postMediaUrl).bodyAsBytes() }.getOrNullAndThrow() ?: return@launch
+                                    viewModel.cacheManager.coroutineScope.launch {
+                                        viewModel.cacheManager.cacheMedia(contentId, media)
                                     }
                                 }
                                 posts[i] = Pair(newPostInfo, media)

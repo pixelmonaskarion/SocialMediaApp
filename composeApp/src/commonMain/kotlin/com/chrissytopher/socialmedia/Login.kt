@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-fun Login(done: () -> Unit) {
+fun Login(viewModel: AppViewModel, done: () -> Unit) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
@@ -51,13 +51,12 @@ fun Login(done: () -> Unit) {
             Spacer(Modifier.height(10.dp))
             OutlinedTextField(email, onValueChange = { email = it }, label = { Text("Email") }, supportingText = { error?.let { Text(it) } }, isError = error != null, singleLine = true, keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false, keyboardType = KeyboardType.Email, imeAction = ImeAction.Next))
             Spacer(Modifier.height(15.dp))
-            val authManager = LocalAuthenticationManager.current
             val coroutineScope = rememberCoroutineScope()
             var normalSize by remember { mutableStateOf(IntSize.Zero) }
             Button(enabled = username.isNotEmpty() && email.isNotEmpty() && !loading, onClick = {
                 loading = true
                 coroutineScope.launch {
-                    error = authManager.createAccount(username, email)
+                    error = viewModel.authenticationManager.createAccount(username, email)
                     if (error == null) {
                         done()
                     }
@@ -76,13 +75,5 @@ fun Login(done: () -> Unit) {
                 }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun LoginPreview() {
-    Surface {
-        Login() {}
     }
 }

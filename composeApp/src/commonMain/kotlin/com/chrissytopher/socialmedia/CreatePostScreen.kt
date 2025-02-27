@@ -31,7 +31,7 @@ import kotlinx.serialization.json.JsonPrimitive
 
 
 @Composable
-fun CreatePostScreen() {
+fun CreatePostScreen(viewModel: AppViewModel) {
     Column(Modifier.padding(10.dp)) {
         val platform = LocalPlatform.current
         val coroutineScope = rememberCoroutineScope()
@@ -44,11 +44,10 @@ fun CreatePostScreen() {
             if (contentId == null) {
                 coroutineScope.launch {
                     platform.pickImages().firstOrNull()?.let { pickedImage ->
-                        println("sigma image")
                         contentIdState.value = ""
                         mime.value = "image/?"
                         image.value = pickedImage.readByteArray()
-                        contentIdState.value = platform.apiClient.uploadPostMedia(image.value!!).getOrNullAndThrow()
+                        contentIdState.value = viewModel.apiClient.uploadPostMedia(image.value!!).getOrNullAndThrow()
                         pickedImage.close()
                     }
                 }
@@ -56,10 +55,9 @@ fun CreatePostScreen() {
         }
         if (contentId != null) {
             var location: LatLng? by key(contentId) { remember { mutableStateOf(null) } }
-            val locationTracker = platform.getLocationTracker(LocalPermissionsController.current)
             LaunchedEffect(location) {
                 if (location == null) {
-                    launch { location = getLocation(locationTracker) }
+                    launch { location = getLocation(viewModel.locationTracker) }
                 }
             }
             var caption by remember { mutableStateOf("") }
@@ -70,14 +68,14 @@ fun CreatePostScreen() {
                 "content_id" to JsonPrimitive(contentId),
                 "caption" to JsonPrimitive(caption),
                 "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
-                "username" to JsonPrimitive(platform.authenticationManager.username),
+                "username" to JsonPrimitive(viewModel.authenticationManager.username),
                 "mime" to JsonPrimitive(mime.value)
             )))) } }
             println("postInfo: $postInfo")
             val localSnackbar = LocalSnackbarState.current
             Button(onClick = {
                 coroutineScope.launch {
-                    val res = platform.apiClient.uploadPostInfo(postInfo)
+                    val res = viewModel.apiClient.uploadPostInfo(postInfo)
                     if (res.isSuccess) {
                         location = null
                         contentIdState.value = null
