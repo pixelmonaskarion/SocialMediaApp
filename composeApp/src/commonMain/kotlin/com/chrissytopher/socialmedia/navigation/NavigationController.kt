@@ -56,7 +56,7 @@ fun <T> NavigationController(navigationStack: NavigationStack<T>, modifier: Modi
     val scope = remember { NavigationControllerScope(navigationStack) }
     val previousScope = remember { NavigationControllerScope(navigationStack, previous = true) }
     val platform = LocalPlatform.current
-    val screenSize = getScreenSize()
+    val screenSize =   getScreenSize()
     Box(modifier) {
         val stack by navigationStack.stackState
         val canGoBack by remember { derivedStateOf { stack.size > 1 } }
