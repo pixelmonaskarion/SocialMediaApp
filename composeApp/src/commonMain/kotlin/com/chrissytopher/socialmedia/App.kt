@@ -103,7 +103,7 @@ fun App(viewModel: AppViewModel) {
                         HomeScreen(viewModel)
                     }
                     composable(route = NavScreen.Settings) {
-                        Settings()
+                        Settings(viewModel)
                     }
                     composable(route = NavScreen.Login) {
                         Login(viewModel) {
@@ -114,7 +114,7 @@ fun App(viewModel: AppViewModel) {
                         AccountSettingScreen(viewModel)
                     }
                     composable(route = NavScreen.CreatePost) {
-                        CreatePostScreen(viewModel)
+                        CreatePostScreen(viewModel, navigationStack)
                     }
                 }
             }
