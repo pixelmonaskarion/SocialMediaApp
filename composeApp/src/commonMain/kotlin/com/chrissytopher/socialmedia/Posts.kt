@@ -25,10 +25,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
@@ -41,12 +44,18 @@ fun Post(postInfo: JsonObject, postMedia: Any?, modifier: Modifier = Modifier, l
         //Text(Json.encodeToString(postInfo))
         if (postMedia != null) {
             if (postMime.startsWith("image/")) {
-                val painter = key(postMedia) { rememberAsyncImagePainter(postMedia, onState = {
-                    (it as? AsyncImagePainter.State.Error)?.result?.throwable?.printStackTrace()
-                }) }
-                val painterStatus by painter.state.collectAsState()
+                val painter = key(postMedia) {
+                    if (postMedia !is Painter) {
+                        rememberAsyncImagePainter(postMedia, onState = {
+                            (it as? AsyncImagePainter.State.Error)?.result?.throwable?.printStackTrace()
+                        })
+                    } else {
+                        postMedia
+                    }
+                }
+                val loading by ((painter as? AsyncImagePainter)?.state?.map { it is AsyncImagePainter.State.Loading } ?: MutableStateFlow(false)).collectAsState(true)
                 Column(Modifier.fillMaxWidth()) {
-                    if (painterStatus is AsyncImagePainter.State.Loading) {
+                    if (loading) {
                         CircularProgressIndicator()
                     } else {
                         Image(

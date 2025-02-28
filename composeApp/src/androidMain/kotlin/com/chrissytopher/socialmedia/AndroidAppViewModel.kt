@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import coil3.PlatformContext
 import com.liftric.kvault.KVault
 import dev.icerock.moko.geo.LocationTracker
 import dev.icerock.moko.permissions.PermissionsController
@@ -23,6 +24,7 @@ class AndroidAppViewModel(private val applicationContext: Context, override val 
             }
         }, authenticationManager
     )
+    override val platformContext: PlatformContext = applicationContext
     override val cacheManager: CacheManager = CacheManager(Path(applicationContext.cacheDir.absolutePath), viewModelScope)
 
     companion object {
