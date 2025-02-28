@@ -48,6 +48,7 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     if (pickedImageOrNah == null) {
                         navHost.popStack()
                     }
+                    println("penis")
                     pickedImageOrNah?.let { pickedImage ->
                         contentIdState.value = ""
                         mime.value = "image/?"
