@@ -1,6 +1,8 @@
 package com.chrissytopher.socialmedia
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.liftric.kvault.KVault
 import dev.icerock.moko.geo.LocationTracker
@@ -14,4 +16,11 @@ abstract class AppViewModel : ViewModel() {
     abstract val kvault: KVault
     abstract val permissionsController: PermissionsController
     abstract val locationTracker: LocationTracker
+    private val _likeIcon = mutableStateOf(kvault.int(LIKE_ICON_KEY) ?: 0)
+    val likeIcon: State<Int> = _likeIcon
+
+    fun setLikeIcon(new: Int) {
+        _likeIcon.value = new
+        kvault.set(LIKE_ICON_KEY, new)
+    }
 }

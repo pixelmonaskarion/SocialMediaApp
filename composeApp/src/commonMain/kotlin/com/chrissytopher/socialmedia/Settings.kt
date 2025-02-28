@@ -22,15 +22,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.dp
 
+val likeIcons = listOf(
+    Pair(Icons.Outlined.FavoriteBorder, Icons.Outlined.Favorite),
+    Pair(Icons.Outlined.ThumbUp, Icons.Sharp.ThumbUp),
+    Pair(Icons.Outlined.Forward, Icons.Sharp.Forward)
+)
+
 @Composable
-fun Settings () {
-    var selectedLikeIcon by remember { mutableStateOf(1) }
+fun Settings (viewModel: AppViewModel) {
+    val selectedLikeIcon by viewModel.likeIcon
     Column {
         Text("Like Icon:", Modifier.padding(10.dp, 0.dp))
         Row{
-            ElevatedFilterChip(selected = selectedLikeIcon == 1, onClick = { selectedLikeIcon = 1 }, label = { Icon(if (selectedLikeIcon != 1) {Icons.Outlined.FavoriteBorder} else {Icons.Outlined.Favorite}, null) })
-            ElevatedFilterChip(selected = selectedLikeIcon == 2, onClick = { selectedLikeIcon = 2 }, label = { Icon(if (selectedLikeIcon != 2) {Icons.Outlined.ThumbUp} else {Icons.Sharp.ThumbUp}, null) })
-            ElevatedFilterChip(selected = selectedLikeIcon == 3, onClick = { selectedLikeIcon = 3 }, label = { Icon(if (selectedLikeIcon != 3) {Icons.Outlined.Forward} else {Icons.Sharp.Forward}, null, Modifier.rotate(-90.0F)) })
+            for (i in 0..2) {
+                ElevatedFilterChip(selected = selectedLikeIcon == i, onClick = { viewModel.setLikeIcon(i) }, label = { Icon(if (selectedLikeIcon != i) {
+                    likeIcons[i].first} else {
+                    likeIcons[i].second}, null)})
+            }
         }
     }
 }

@@ -35,7 +35,7 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
-fun Post(postInfo: JsonObject, postMedia: Any?, modifier: Modifier = Modifier) {
+fun Post(postInfo: JsonObject, postMedia: Any?, modifier: Modifier = Modifier, likeIcon: Int) {
     Column(modifier.fillMaxWidth()) {
         val postMime = postInfo["mime"]?.jsonPrimitive?.contentOrNull ?: "text/plain"
         //Text(Json.encodeToString(postInfo))
@@ -65,9 +65,9 @@ fun Post(postInfo: JsonObject, postMedia: Any?, modifier: Modifier = Modifier) {
                         }) {
                             Icon(
                                 if (!liked) {
-                                    Icons.Outlined.FavoriteBorder
+                                    likeIcons[likeIcon].first
                                 } else {
-                                    Icons.Outlined.Favorite
+                                    likeIcons[likeIcon].second
                                 }, "Like Button")
                         }
                     }
