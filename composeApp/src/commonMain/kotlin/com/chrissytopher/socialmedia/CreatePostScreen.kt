@@ -70,17 +70,16 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
             OutlinedTextField(caption, onValueChange = {
                 caption = it
             }, label = { Text("Caption") })
-            var postInfo by key(location) { remember { mutableStateOf(Json.encodeToString(JsonObject(hashMapOf(
-                "content_id" to JsonPrimitive(contentId),
-                "caption" to JsonPrimitive(caption),
-                "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
-                "username" to JsonPrimitive(viewModel.authenticationManager.username),
-                "mime" to JsonPrimitive(mime.value)
-            )))) } }
-            println("postInfo: $postInfo")
             val localSnackbar = LocalSnackbarState.current
             Button(onClick = {
                 coroutineScope.launch {
+                    var postInfo = Json.encodeToString(JsonObject(hashMapOf(
+                        "content_id" to JsonPrimitive(contentId),
+                        "caption" to JsonPrimitive(caption),
+                        "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
+                        "username" to JsonPrimitive(viewModel.authenticationManager.username),
+                        "mime" to JsonPrimitive(mime.value)
+                    )))
                     val res = viewModel.apiClient.uploadPostInfo(postInfo)
                     if (res.isSuccess) {
                         location = null
@@ -90,7 +89,7 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                         localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
                     }
                 }
-            }, enabled = runCatching { Json.decodeFromString<JsonObject>(postInfo) }.isSuccess) {
+            }) {
                 Text("Post!")
             }
         }
