@@ -1,10 +1,8 @@
 package com.chrissytopher.socialmedia
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.compose.asPainter
@@ -14,18 +12,18 @@ import dev.icerock.moko.geo.LocationTracker
 import dev.icerock.moko.permissions.PermissionsController
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsBytes
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-abstract class AppViewModel : ViewModel() {
+abstract class AppViewModel(val kvault: KVault) : ViewModel() {
     val authenticationManager = AuthenticationManager(this)
     abstract val cacheManager: CacheManager
     open val apiClient = ServerApi(authenticationManager = authenticationManager)
-    abstract val kvault: KVault
     abstract val permissionsController: PermissionsController
     abstract val locationTracker: LocationTracker
     private val _likeIcon = mutableStateOf(kvault.int(LIKE_ICON_KEY) ?: 0)
@@ -37,23 +35,26 @@ abstract class AppViewModel : ViewModel() {
     }
     abstract val platformContext: PlatformContext
 
-    fun getPostRecommendations(): Flow<List<PostRepresentation>> {
-        return flow {
+    var currentPosts: Flow<List<PostRepresentation>>? = null
+
+    fun getPostRecommendations() {
+        currentPosts = flow {
             val location = getLocation(locationTracker)
             val postIds = location?.let { apiClient.getRecommendations(it).getOrNullAndThrow() } ?: return@flow
-            val posts = postIds.map { PostRepresentation(it, null, null) }.toMutableList()
+            var posts by atomic(postIds.map { PostRepresentation(it, null, null) })
             emit(posts)
             for (i in posts.indices) {
-                viewModelScope.launch {
+//                coroutineScope {
                     val contentId = posts[i].contentId
-                    val info = apiClient.getPostInfo(contentId).getOrNull()
-                    posts[i] = posts[i].copy(info = info)
+                    val info = apiClient.getPostInfo(contentId).getOrNullAndThrow()
+                    println("info: $info")
+                    posts = posts.toMutableList().apply { set(i, get(i).copy(info = info)) }
                     emit(posts)
                     var media: Any? = cacheManager.getCachedPostMedia(contentId)
                     if (media == null) {
                         val postMediaUrl = apiClient.getPostMediaUrl(contentId)
-                            .getOrNullAndThrow() ?: return@launch
-                        media = runCatching { apiClient.httpClient.get(postMediaUrl).bodyAsBytes() }.getOrNullAndThrow() ?: return@launch
+                            .getOrNullAndThrow() ?: continue
+                        media = runCatching { apiClient.httpClient.get(postMediaUrl).bodyAsBytes() }.getOrNullAndThrow() ?: continue
 
                         cacheManager.coroutineScope.launch {
                             (media as? ByteArray?)?.let { cacheManager.cacheMedia(contentId, it) }
@@ -63,9 +64,9 @@ abstract class AppViewModel : ViewModel() {
                             media = ImageLoader(platformContext).execute(ImageRequest.Builder(platformContext).data(media).build()).image?.asPainter(platformContext)
                         }
                     }
-                    posts[i] = posts[i].copy(media = media)
+                    posts = posts.toMutableList().apply { set(i, get(i).copy(media = media)) }
                     emit(posts)
-                }
+//                }
             }
         }
     }

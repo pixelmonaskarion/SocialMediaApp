@@ -38,7 +38,7 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
-fun Post(postInfo: JsonObject, postMedia: Any?, modifier: Modifier = Modifier, likeIcon: Int) {
+fun Post(postInfo: JsonObject, postMedia: Any?, likeIcon: Int, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth()) {
         val postMime = postInfo["mime"]?.jsonPrimitive?.contentOrNull ?: "text/plain"
         //Text(Json.encodeToString(postInfo))

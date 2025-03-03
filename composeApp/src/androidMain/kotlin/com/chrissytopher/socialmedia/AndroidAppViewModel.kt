@@ -15,8 +15,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.io.files.Path
 
-class AndroidAppViewModel(private val applicationContext: Context, override val permissionsController: PermissionsController, override val locationTracker: LocationTracker) : AppViewModel() {
-    override val kvault: KVault = KVault(applicationContext)
+class AndroidAppViewModel(private val applicationContext: Context, override val permissionsController: PermissionsController, override val locationTracker: LocationTracker) : AppViewModel(KVault(applicationContext)) {
     override val apiClient: ServerApi = ServerApi(
         HttpClient(OkHttp) {
             install(ContentNegotiation) {

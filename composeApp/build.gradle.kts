@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -7,6 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+//    id("org.jetbrains.kotlinx.atomicfu") version "0.27.0"
     kotlin("plugin.serialization") version "2.1.0"
 }
 
@@ -60,6 +60,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.permissions.compose)
             implementation(libs.geo.compose)
+            implementation("org.jetbrains.kotlinx:atomicfu:0.27.0")
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
