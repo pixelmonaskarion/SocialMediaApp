@@ -96,6 +96,7 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                         location = null
                         contentIdState.value = null
                         localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
+                        navHost.popStack()
                     } else {
                         localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
                     }
