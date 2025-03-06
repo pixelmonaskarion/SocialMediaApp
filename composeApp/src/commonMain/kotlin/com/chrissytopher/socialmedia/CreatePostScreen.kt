@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.chrissytopher.socialmedia.navigation.NavigationController
 import com.chrissytopher.socialmedia.navigation.NavigationStack
 import dev.icerock.moko.geo.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,11 +47,12 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
         val mime = remember { mutableStateOf("text/plain") }
         val image: MutableState<ByteArray?> = remember { mutableStateOf(null) }
         LaunchedEffect(contentId) {
-            if (contentId == null) {
+            if (contentId == null && navHost.routeState.value == NavScreen.CreatePost) {
                 coroutineScope.launch {
                     val pickedImageOrNah = platform.pickImages().firstOrNull()
                     if (pickedImageOrNah == null) {
                         navHost.popStack()
+                        return@launch
                     }
                     println("penis")
                     pickedImageOrNah?.let { pickedImage ->
@@ -61,6 +63,11 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                         pickedImage.close()
                     }
                 }
+            }
+        }
+        LaunchedEffect(navHost.routeState.value) {
+            if (navHost.routeState.value != NavScreen.CreatePost) {
+                contentIdState.value = null
             }
         }
         if (contentId != null) {
