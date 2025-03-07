@@ -61,14 +61,6 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                             pickedImage.close()
                         }
                     }
-                    println("penis")
-                    pickedImageOrNah?.let { pickedImage ->
-                        contentIdState.value = ""
-                        mime.value = "image/?"
-                        image.value = pickedImage.readByteArray()
-                        contentIdState.value = viewModel.apiClient.uploadPostMedia(image.value!!).getOrNullAndThrow()
-                        pickedImage.close()
-                    }
                 }
             }
         }
