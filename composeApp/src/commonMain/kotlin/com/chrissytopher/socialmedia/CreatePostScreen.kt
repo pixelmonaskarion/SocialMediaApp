@@ -71,7 +71,7 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
         }
         if (contentId != null) {
             var location: LatLng? by key(contentId) { remember { mutableStateOf(null) } }
-            LaunchedEffect(location) {
+            LaunchedEffect(contentId) {
                 if (location == null) {
                     launch { location = getLocation(viewModel.locationTracker) }
                 }
@@ -90,7 +90,10 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
             Button(onClick = {
                 keyboardController?.hide()
                 coroutineScope.launch {
-                    var postInfo = Json.encodeToString(JsonObject(hashMapOf(
+                    if (location == null) {
+                        location = getLocation(viewModel.locationTracker)
+                    }
+                    val postInfo = Json.encodeToString(JsonObject(hashMapOf(
                         "content_id" to JsonPrimitive(contentId),
                         "caption" to JsonPrimitive(caption),
                         "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
