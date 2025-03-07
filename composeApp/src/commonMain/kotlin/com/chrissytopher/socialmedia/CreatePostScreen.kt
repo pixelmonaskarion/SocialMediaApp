@@ -102,10 +102,8 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     )))
                     val res = viewModel.apiClient.uploadPostInfo(postInfo)
                     if (res.isSuccess) {
-                        location = null
-                        contentIdState.value = null
-                        localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
                         navHost.popStack()
+                        localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
                     } else {
                         localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
                     }
