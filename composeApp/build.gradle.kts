@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-//    id("org.jetbrains.kotlinx.atomicfu") version "0.27.0"
     kotlin("plugin.serialization") version "2.1.0"
 }
 
@@ -26,6 +25,14 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+        }
+        iosTarget.compilations.getByName("main") {
+            cinterops {
+                val rustCrypto by creating {
+                    includeDirs("${project.rootDir}/composeApp/src/nativeInterop/cinterop/", "${project.rootDir}/composeApp/src/nativeInterop/cinterop/")
+//                    extraOpts("-libraryPath", "${project.rootDir}/composeApp/src/nativeInterop/cinterop/")
+                }
+            }
         }
     }
     
@@ -60,7 +67,8 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.permissions.compose)
             implementation(libs.geo.compose)
-            implementation("org.jetbrains.kotlinx:atomicfu:0.27.0")
+            implementation(libs.atomicfu)
+            implementation(libs.lifecycle.viewmodel.compose)
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)

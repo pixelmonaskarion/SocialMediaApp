@@ -1,11 +1,9 @@
 #ifndef RustCrypto_Bridging_Header_h
 #define RustCrypto_Bridging_Header_h
 
-#import <Foundation/Foundation.h>
-
-NSData *rust_new_keypair(void);
-NSData *rust_create_csr(NSData *keypair);
-BOOL rust_verify_account_certificate(NSData *keypair, NSString *username, NSString *certificateBase64, NSString *serverPublicKey);
-NSString *rust_account_signature(NSData *keypair, NSString *username, NSString *nonce);
+const char* new_keypair();
+const char* create_csr(const char* keypair);
+BOOL verify_account_certificate(const char* keypair, const char*  username, const char*  certificateBase64, const char* serverPublicKey);
+const char* account_signature(const char* keypair, const char*  username, const char*  nonce);
 
 #endif /* RustCrypto_Bridging_Header_h */
