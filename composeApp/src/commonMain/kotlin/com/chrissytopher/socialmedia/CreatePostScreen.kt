@@ -2,7 +2,10 @@ package com.chrissytopher.socialmedia
 
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -22,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -34,10 +38,21 @@ import kotlinx.io.readByteArray
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import org.jetbrains.compose.resources.painterResource
+import coil3.compose.AsyncImage
+import socialmediaapp.composeapp.generated.resources.Res
 
 
 @Composable
 fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        AsyncImage(
+            Res.drawable.family_guy_quagmire_in_bed,
+            contentDescription = "BG Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+    }
     Column(Modifier.padding(10.dp)) {
         val platform = LocalPlatform.current
         val coroutineScope = rememberCoroutineScope()
