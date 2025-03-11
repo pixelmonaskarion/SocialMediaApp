@@ -35,10 +35,10 @@ import dev.icerock.moko.permissions.PermissionsController
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 val LocalPlatform: ProvidableCompositionLocal<Platform> = compositionLocalOf { error("no platform provided") }
-val LocalAuthenticationManager: ProvidableCompositionLocal<AuthenticationManager> = compositionLocalOf { error("no authentication manager provided") }
-val LocalCacheManager: ProvidableCompositionLocal<CacheManager> = compositionLocalOf { error("no cache manager provided") }
+//val LocalAuthenticationManager: ProvidableCompositionLocal<AuthenticationManager> = compositionLocalOf { error("no authentication manager provided") }
+//val LocalCacheManager: ProvidableCompositionLocal<CacheManager> = compositionLocalOf { error("no cache manager provided") }
 val LocalNavHost = compositionLocalOf<NavigationStack<NavScreen>> { error("no nav host provided") }
-val LocalPermissionsController = compositionLocalOf<PermissionsController>{ error("no permissions controller provided") }
+//val LocalPermissionsController = compositionLocalOf<PermissionsController>{ error("no permissions controller provided") }
 val LocalSnackbarState = compositionLocalOf { SnackbarHostState() }
 
 enum class NavScreen(val selectedIcon: ImageVector, val unselectedIcon: ImageVector, val showInNavBar: Boolean = true, val hideNavBar: Boolean = false) {
@@ -71,9 +71,8 @@ fun AppBottomBar(currentScreenState: State<NavScreen>, select: (NavScreen) -> Un
 
 @Composable
 @Preview
-fun App() {
-    val authManager = LocalAuthenticationManager.current
-    val navigationStack : NavigationStack<NavScreen> = remember { NavigationStack(if (authManager.loggedIn()) NavScreen.Home else NavScreen.Login) }
+fun App(viewModel: AppViewModel) {
+    val navigationStack : NavigationStack<NavScreen> = remember { NavigationStack(if (viewModel.authenticationManager.loggedIn()) NavScreen.Home else NavScreen.Login) }
     MaterialTheme {
         CompositionLocalProvider(LocalNavHost provides navigationStack) {
             Scaffold(
@@ -101,21 +100,21 @@ fun App() {
 
                 ) {
                     composable(route = NavScreen.Home) {
-                        HomeScreen()
+                        HomeScreen(viewModel)
                     }
                     composable(route = NavScreen.Settings) {
-                        Settings()
+                        Settings(viewModel)
                     }
                     composable(route = NavScreen.Login) {
-                        Login() {
+                        Login(viewModel) {
                             navigationStack.clearStack(NavScreen.Home)
                         }
                     }
                     composable(route = NavScreen.Account) {
-                        AccountSettingScreen()
+                        AccountSettingScreen(viewModel)
                     }
                     composable(route = NavScreen.CreatePost) {
-                        CreatePostScreen()
+                        CreatePostScreen(viewModel, navigationStack)
                     }
                 }
             }

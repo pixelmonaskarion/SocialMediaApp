@@ -15,7 +15,7 @@ class CacheManager(private val cacheDirectory: Path, val coroutineScope: Corouti
 
     fun getCachedPostMedia(contentId: String): ByteArray? = runCatching<ByteArray> {
         return@runCatching SystemFileSystem.source(fileForMedia(contentId)).buffered().readByteArray()
-    }.getOrNullAndThrow()
+    }.getOrNull()
 
     fun cacheInfo(contentId: String, info: JsonObject) {
         val infoFile = fileForInfo(contentId)

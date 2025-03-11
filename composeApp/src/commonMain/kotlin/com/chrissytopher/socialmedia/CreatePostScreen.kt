@@ -2,9 +2,14 @@ package com.chrissytopher.socialmedia
 
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
@@ -20,7 +25,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.chrissytopher.socialmedia.navigation.NavigationController
+import com.chrissytopher.socialmedia.navigation.NavigationStack
 import dev.icerock.moko.geo.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -28,10 +38,21 @@ import kotlinx.io.readByteArray
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import org.jetbrains.compose.resources.painterResource
+import coil3.compose.AsyncImage
+import socialmediaapp.composeapp.generated.resources.Res
 
 
 @Composable
-fun CreatePostScreen() {
+fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        AsyncImage(
+            Res.drawable.family_guy_quagmire_in_bed,
+            contentDescription = "BG Image",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+    }
     Column(Modifier.padding(10.dp)) {
         val platform = LocalPlatform.current
         val coroutineScope = rememberCoroutineScope()
@@ -41,52 +62,68 @@ fun CreatePostScreen() {
         val mime = remember { mutableStateOf("text/plain") }
         val image: MutableState<ByteArray?> = remember { mutableStateOf(null) }
         LaunchedEffect(contentId) {
-            if (contentId == null) {
+            if (contentId == null && navHost.routeState.value == NavScreen.CreatePost) {
                 coroutineScope.launch {
-                    platform.pickImages().firstOrNull()?.let { pickedImage ->
-                        println("sigma image")
-                        contentIdState.value = ""
-                        mime.value = "image/?"
-                        image.value = pickedImage.readByteArray()
-                        contentIdState.value = platform.apiClient.uploadPostMedia(image.value!!).getOrNullAndThrow()
-                        pickedImage.close()
+                    val pickedImageOrNah = platform.pickImages().firstOrNull()
+                    if (pickedImageOrNah == null) {
+                        navHost.popStack()
+                    } else {
+                        pickedImageOrNah.let { pickedImage ->
+                            contentIdState.value = ""
+                            mime.value = "image/?"
+                            image.value = pickedImage.readByteArray()
+                            contentIdState.value = viewModel.apiClient.uploadPostMedia(image.value!!).getOrNullAndThrow()
+                            pickedImage.close()
+                        }
                     }
                 }
             }
         }
+        LaunchedEffect(navHost.routeState.value) {
+            if (navHost.routeState.value != NavScreen.CreatePost) {
+                contentIdState.value = null
+            }
+        }
         if (contentId != null) {
             var location: LatLng? by key(contentId) { remember { mutableStateOf(null) } }
-            val locationTracker = platform.getLocationTracker(LocalPermissionsController.current)
-            LaunchedEffect(location) {
+            LaunchedEffect(contentId) {
                 if (location == null) {
-                    launch { location = getLocation(locationTracker) }
+                    launch { location = getLocation(viewModel.locationTracker) }
                 }
             }
             var caption by remember { mutableStateOf("") }
+            val keyboardController = LocalSoftwareKeyboardController.current
             OutlinedTextField(caption, onValueChange = {
-                caption = it
-            }, label = { Text("Caption") })
-            var postInfo by key(location) { remember { mutableStateOf(Json.encodeToString(JsonObject(hashMapOf(
-                "content_id" to JsonPrimitive(contentId),
-                "caption" to JsonPrimitive(caption),
-                "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
-                "username" to JsonPrimitive(platform.authenticationManager.username),
-                "mime" to JsonPrimitive(mime.value)
-            )))) } }
-            println("postInfo: $postInfo")
+                caption = it },
+                label = { Text("Caption") },
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = { keyboardController?.hide() }
+                )
+            )
             val localSnackbar = LocalSnackbarState.current
             Button(onClick = {
+                keyboardController?.hide()
                 coroutineScope.launch {
-                    val res = platform.apiClient.uploadPostInfo(postInfo)
+                    if (location == null) {
+                        location = getLocation(viewModel.locationTracker)
+                    }
+                    val postInfo = Json.encodeToString(JsonObject(hashMapOf(
+                        "content_id" to JsonPrimitive(contentId),
+                        "caption" to JsonPrimitive(caption),
+                        "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
+                        "username" to JsonPrimitive(viewModel.authenticationManager.username),
+                        "mime" to JsonPrimitive(mime.value)
+                    )))
+                    val res = viewModel.apiClient.uploadPostInfo(postInfo)
                     if (res.isSuccess) {
-                        location = null
-                        contentIdState.value = null
+                        navHost.popStack()
                         localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
                     } else {
                         localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
                     }
                 }
-            }, enabled = runCatching { Json.decodeFromString<JsonObject>(postInfo) }.isSuccess) {
+            }) {
                 Text("Post!")
             }
         }

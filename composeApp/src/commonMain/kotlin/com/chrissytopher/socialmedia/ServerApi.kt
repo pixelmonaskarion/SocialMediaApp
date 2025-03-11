@@ -106,7 +106,9 @@ data class CreateAccountResponse(
 
 fun <T> Result<T>.getOrNullAndThrow(message: String = ""): T? {
     exceptionOrNull()?.let {
-        println("$message:")
+        if (message.isNotEmpty()) {
+            println("$message:")
+        }
         it.printStackTrace()
     }
     return getOrNull()

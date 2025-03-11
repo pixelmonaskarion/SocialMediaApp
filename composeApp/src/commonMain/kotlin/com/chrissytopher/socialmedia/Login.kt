@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,15 +28,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import androidx.compose.ui.unit.toSize
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-fun Login(done: () -> Unit) {
+fun Login(viewModel: AppViewModel, done: () -> Unit) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
@@ -43,17 +46,16 @@ fun Login(done: () -> Unit) {
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceEvenly, horizontalAlignment = Alignment.CenterHorizontally) {
         Text("Create an Account", style = MaterialTheme.typography.headlineLarge)
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.animateContentSize()) {
-            OutlinedTextField(username, onValueChange = { username = it }, label = { Text("Username") })
+            OutlinedTextField(username, onValueChange = { username = it }, label = { Text("Username") }, singleLine = true, keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false, keyboardType = KeyboardType.Password, imeAction = ImeAction.Next))
             Spacer(Modifier.height(10.dp))
-            OutlinedTextField(email, onValueChange = { email = it }, label = { Text("Email") }, supportingText = { error?.let { Text(it) } }, isError = error != null)
+            OutlinedTextField(email, onValueChange = { email = it }, label = { Text("Email") }, supportingText = { error?.let { Text(it) } }, isError = error != null, singleLine = true, keyboardOptions = KeyboardOptions.Default.copy(capitalization = KeyboardCapitalization.None, autoCorrectEnabled = false, keyboardType = KeyboardType.Email, imeAction = ImeAction.Next))
             Spacer(Modifier.height(15.dp))
-            val authManager = LocalAuthenticationManager.current
             val coroutineScope = rememberCoroutineScope()
             var normalSize by remember { mutableStateOf(IntSize.Zero) }
             Button(enabled = username.isNotEmpty() && email.isNotEmpty() && !loading, onClick = {
                 loading = true
                 coroutineScope.launch {
-                    error = authManager.createAccount(username, email)
+                    error = viewModel.authenticationManager.createAccount(username, email)
                     if (error == null) {
                         done()
                     }
@@ -72,13 +74,5 @@ fun Login(done: () -> Unit) {
                 }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun LoginPreview() {
-    Surface {
-        Login() {}
     }
 }

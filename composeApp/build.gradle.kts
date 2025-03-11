@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -26,6 +25,14 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+        }
+        iosTarget.compilations.getByName("main") {
+            cinterops {
+                val rustCrypto by creating {
+                    includeDirs("${project.rootDir}/composeApp/src/nativeInterop/cinterop/", "${project.rootDir}/composeApp/src/nativeInterop/cinterop/")
+//                    extraOpts("-libraryPath", "${project.rootDir}/composeApp/src/nativeInterop/cinterop/")
+                }
+            }
         }
     }
     
@@ -60,6 +67,8 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.permissions.compose)
             implementation(libs.geo.compose)
+            implementation(libs.atomicfu)
+            implementation(libs.lifecycle.viewmodel.compose)
         }
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
