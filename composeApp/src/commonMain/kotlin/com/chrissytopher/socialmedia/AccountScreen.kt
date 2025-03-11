@@ -64,16 +64,15 @@ import kotlin.math.abs
 
 
 @Composable
-fun AccountSettingScreen() {
+fun AccountSettingScreen(viewModel: AppViewModel) {
     val platform = LocalPlatform.current
-    val authManager = LocalAuthenticationManager.current
     val coroutineScope = rememberCoroutineScope()
     var username: String? by remember { mutableStateOf(null)}
     var email: String? by remember {mutableStateOf(null)}
     var profilePicture: String? by remember { mutableStateOf(null) }
-    if (authManager.loggedIn()){
-        username = authManager.username
-        email = authManager.email
+    if (viewModel.authenticationManager.loggedIn()){
+        username = viewModel.authenticationManager.username
+        email = viewModel.authenticationManager.email
     }
     // I would put the image fetch request here
     profilePicture = "https://upload.wikimedia.org/wikipedia/commons/a/a9/Grace_Abbott_1929.jpg"
