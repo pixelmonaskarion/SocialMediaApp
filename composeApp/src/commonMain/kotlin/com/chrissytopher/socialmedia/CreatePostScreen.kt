@@ -6,7 +6,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -41,14 +43,14 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.compose.resources.painterResource
 import coil3.compose.AsyncImage
 import socialmediaapp.composeapp.generated.resources.Res
-import socialmediaapp.composeapp.generated.resources.family_guy_quagmire_in_bed
+import socialmediaapp.composeapp.generated.resources.dancing_quag
 
 
 @Composable
 fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>) {
     Box(modifier = Modifier.fillMaxSize()) {
-        AsyncImage(
-            model = "https://cdn.britannica.com/73/9173-004-56D81BC8.jpg",
+        Image(
+            painter = painterResource(Res.drawable.dancing_quag),
             contentDescription = "BG Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
