@@ -90,15 +90,7 @@ fun AccountSettingScreen(viewModel: AppViewModel) {
         Image(
             painter = painter,
             contentDescription = "User profile picture",
-            modifier = Modifier
-                .clip(RectangleShape)
-//                .border(1.dp,Color.Red,RectangleShape)
-             .customCrop(xPosition,yPosition,outputSize.toInt())
-               // .border(1.dp,Color.Blue,RectangleShape)
-               .clip(RectangleShape)
-                .customScale(scalingFactor = inputSize)
-                .scale(inputSize)
-
+            modifier = croppingScream(xPosition,yPosition,inputSize,outputSize.toInt())
         )
         Slider(
             modifier = Modifier.semantics { contentDescription = "Y translate" },
@@ -133,146 +125,98 @@ fun AccountSettingScreen(viewModel: AppViewModel) {
 }
 
 }
-fun Modifier.customCrop(x:Float , y:Float, outputSize:Int) =
-    layout{measurable,constraints ->
-        val placeable = measurable.measure(constraints)
-        //(x,y) should be the center point of the image
-        // that means x value has to be greater than outputSize/2 and less than givenWidth - outputSize/2
-        //same for y (just swap givenHeight for givenWidth)
-        //place changes the location of top left corner, and moves that to be (x-outputsize/2, y-outputsize/2)
-        val givenWidth = placeable.width
-        val givenHeight = placeable.height
-        val smallestSide =
-            if(outputSize <givenHeight && outputSize < givenWidth){
-                outputSize}
-            else{
-                if(givenHeight > givenWidth){
-                    givenWidth
-                }
-                else{
-                    givenHeight
-                }
-            }
-        val castX = (givenWidth*x).toInt()
-        val castY = (givenHeight*y).toInt()
-        val originX = if(castX < outputSize/2){
-            outputSize/2
-        }else if (castX > givenWidth-outputSize/2) {
-            givenWidth-outputSize/2
-        }else{
-            castX
-        }
-        val originY = if(castY < outputSize/2){
-            outputSize/2
-        }else if (castY> givenHeight-outputSize/2) {
-            givenHeight-outputSize/2
-        }else{
-            castY
-        }
-        if(outputSize!=smallestSide){
-            layout(width = smallestSide, height = smallestSide) {
-                placeable.place(0,0)
-            }
-        }else{
-        layout(width = smallestSide, height = smallestSide) {
-            placeable.place(-(originX-outputSize/2), -(originY-outputSize/2))
-        }}
 
-    }
-fun Modifier.customScale(scalingFactor:Float)=
-    layout{measurable,constraints->
-        val placeable = measurable.measure(constraints)
-        val gwidth = placeable.width*scalingFactor
-        val gheight = placeable.height*scalingFactor
-        var originX:Float
-        var originY:Float
-        if(scalingFactor>1){
-        originX = (gwidth - placeable.width)/2
-        originY = (gheight - placeable.height)/2
-        }else{
-            originX = -(placeable.width-gwidth)/2
-            originY = -(placeable.height-gheight)/2
-        }
-        layout(width =gwidth.toInt(), height = gheight.toInt()) {
-            placeable.place(originX.toInt(),originY.toInt())
-        }
-    }
-
-fun croppingScream(x:Int,y:Int,scalingFactor: Float,outputSize: Int):Modifier
+fun croppingScream(x:Float,y:Float,scalingFactor: Float,outputSize: Int):Modifier
 {
    //I'm going to have to draw this to figure out the math - scream
+    var originalW:Int by mutableStateOf(0) //annotated as OGW on graph - represents the width of original image
+    var originalH:Int by mutableStateOf(0) //annotated as OGH on graph - represents the height of the original image
+    var scaledW:Int by mutableStateOf(0 )//annotated as SW on graph - represents the width of the scaled image
+    var scaledH:Int by mutableStateOf(0) //annotated as SH on graph - represents the height of the scaled image
+    var sX:Int by mutableStateOf(0) //coord of upper left corner of scaled image
+    var sY:Int by mutableStateOf(0)//coord of upper left corner of scaled image
+    var cS = outputSize
+    var cX:Int by mutableStateOf(0) //center of cropped output image
+    var cY:Int by mutableStateOf(0)//center of cropped output image
+    var originCX:Int by mutableStateOf(0) //upper left hand corner of cropped image
+    var originCY:Int by mutableStateOf(0) //upper left hand corner of cropped image
 
-
-
-
-
-
-    return Modifier.clip(RectangleShape)
-        .border(1.dp,Color.Red,RectangleShape)
-        .layout{measurable,constraints ->
-            val placeable = measurable.measure(constraints)
-            //(x,y) should be the center point of the image
-            // that means x value has to be greater than outputSize/2 and less than givenWidth - outputSize/2
-            //same for y (just swap givenHeight for givenWidth)
-            //place changes the location of top left corner, and moves that to be (x-outputsize/2, y-outputsize/2)
-            val givenWidth = placeable.width
-            val givenHeight = placeable.height
-            val smallestSide =
-                if(outputSize <givenHeight && outputSize < givenWidth){
-                    outputSize}
-                else{
-                    if(givenHeight > givenWidth){
-                        givenWidth
-                    }
-                    else{
-                        givenHeight
-                    }
-                }
-            val castX = (givenWidth*x).toInt()
-            val castY = (givenHeight*y).toInt()
-            val originX = if(castX < outputSize/2){
-                outputSize/2
-            }else if (castX > givenWidth-outputSize/2) {
-                givenWidth-outputSize/2
-            }else{
-                castX
-            }
-            val originY = if(castY < outputSize/2){
-                outputSize/2
-            }else if (castY> givenHeight-outputSize/2) {
-                givenHeight-outputSize/2
-            }else{
-                castY
-            }
-            if(outputSize!=smallestSide){
-                layout(width = smallestSide, height = smallestSide) {
-                    placeable.place(0,0)
-                }
-            }else{
-                layout(width = smallestSide, height = smallestSide) {
-                    placeable.place(-(originX-outputSize/2), -(originY-outputSize/2))
-                }}
-
-        }
+    return Modifier
+        //.clip(RectangleShape)
         .border(1.dp,Color.Blue,RectangleShape)
-        .clip(RectangleShape)
         .layout{measurable,constraints->
             val placeable = measurable.measure(constraints)
-            val gwidth = placeable.width*scalingFactor
-            val gheight = placeable.height*scalingFactor
-            var originX:Float
-            var originY:Float
-            if(scalingFactor>1){
-                originX = (gwidth - placeable.width)/2
-                originY = (gheight - placeable.height)/2
+            originalW = placeable.width
+            originalH = placeable.height
+            scaledW = (originalW*scalingFactor).toInt()
+            scaledH = (originalH*scalingFactor).toInt()
+            if (scalingFactor > 1){ //setting origin of the scaled image at upper left hand corner. This changes compared to the original image since scale is only set around the center of the image
+                //scaled image is outside of bounds, so needs negative coord to move layout outside of original bound
+                sX = 0-((scaledW-originalW)/2)
+                sY = 0-((scaledH-originalH)/2)
             }else{
-                originX = -(placeable.width-gwidth)/2
-                originY = -(placeable.height-gheight)/2
+                //scaled image is inside bounds, so needs positive coord to move layout further inside of original bound
+                sX = 0+((originalW-scaledW)/2)
+                sY = 0+((originalH-scaledH)/2)
             }
-            layout(width =gwidth.toInt(), height = gheight.toInt()) {
-                placeable.place(originX.toInt(),originY.toInt())
+//            layout(width =scaledW, height = scaledH) {
+//                placeable.place(-sX,-sY)
+//            }
+            cX = (scaledW*x).toInt() +sX // finds center of cropped image on scaled image
+            cY = (scaledH*y).toInt() + sY //finds center of cropped image on scaled image
+            originCX = if((cX-(cS/2))<sX){ //if cropped image is too far left, set left hand corner to the scaled image x coord
+                sX
+            }else if((cX+(cS/2))>(sX+scaledW)){ //if cropped image is too far right, set left hand corner to be one size away from right hand bound
+                sX+scaledW-cS
+            }
+            else{ //if we're chilling, we're chilling
+                cX-(cS/2)
+            }
+            originCY = if((cY-(cS/2)) < sY){
+                sY
+            }else if((cY+(cS/2))>(sY+scaledH)){
+                sY+scaledH-cS
+            }
+            else{
+                cY-(cS/2)
+            }
+            if(cS <scaledH && cS < scaledW){
+                layout(width =cS, height = cS.toInt()) {
+                    placeable.place(-originCX,-originCY)
+                }
+            }
+            else{
+                if(scaledH > scaledW){
+                    cS=scaledW
+                    originCY = if((cY-(cS/2)) < sY){
+                        sY
+                    }else if((cY+(cS/2))>(sY+scaledH)){
+                        sY+scaledH-cS
+                    }
+                    else{
+                        cY-(cS/2)
+                    }
+                    layout(width = cS, height = cS) {
+                        placeable.place(-sX, -originCY)
+                    }
+                }
+                else{
+                    cS = scaledH
+                    originCX = if((cX-(cS/2))<sX){ //if cropped image is too far left, set left hand corner to the scaled image x coord
+                        sX
+                    }else if((cX+(cS/2))>(sX+scaledW)){ //if cropped image is too far right, set left hand corner to be one size away from right hand bound
+                        sX+scaledW-cS
+                    }
+                    else{ //if we're chilling, we're chilling
+                        cX-(cS/2)
+                    }
+                    layout(width = cS, height = cS) {
+                        placeable.place(-originCX, -sY)
+                    }
+                }
             }
         }
+        .border(1.dp,Color.Red,RectangleShape)
         .scale(scalingFactor)
 
 }

@@ -47,7 +47,7 @@ import socialmediaapp.composeapp.generated.resources.Res
 fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>) {
     Box(modifier = Modifier.fillMaxSize()) {
         AsyncImage(
-            Res.drawable.family_guy_quagmire_in_bed,
+            model = "https://cdn.britannica.com/73/9173-004-56D81BC8.jpg",
             contentDescription = "BG Image",
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
