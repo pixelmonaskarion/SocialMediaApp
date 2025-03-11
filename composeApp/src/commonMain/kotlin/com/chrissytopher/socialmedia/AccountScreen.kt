@@ -142,8 +142,8 @@ fun croppingScream(x:Float,y:Float,scalingFactor: Float,outputSize: Int):Modifie
     var originCY:Int by mutableStateOf(0) //upper left hand corner of cropped image
 
     return Modifier
-        //.clip(RectangleShape)
-        .border(1.dp,Color.Blue,RectangleShape)
+        .clip(RectangleShape)
+        //.border(1.dp,Color.Blue,RectangleShape)
         .layout{measurable,constraints->
             val placeable = measurable.measure(constraints)
             originalW = placeable.width
@@ -216,7 +216,7 @@ fun croppingScream(x:Float,y:Float,scalingFactor: Float,outputSize: Int):Modifie
                 }
             }
         }
-        .border(1.dp,Color.Red,RectangleShape)
+        //.border(1.dp,Color.Red,RectangleShape)
         .scale(scalingFactor)
 
 }
