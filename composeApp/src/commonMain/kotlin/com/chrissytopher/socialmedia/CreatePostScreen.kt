@@ -41,6 +41,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.compose.resources.painterResource
 import coil3.compose.AsyncImage
 import socialmediaapp.composeapp.generated.resources.Res
+import socialmediaapp.composeapp.generated.resources.family_guy_quagmire_in_bed
 
 
 @Composable
