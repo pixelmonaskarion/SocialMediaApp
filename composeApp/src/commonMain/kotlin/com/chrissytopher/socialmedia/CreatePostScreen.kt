@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+//import androidx.compose.foundation.layout.BoxScopeInstance.align
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
@@ -61,7 +62,7 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
             contentScale = ContentScale.Crop
         )
     }
-    Column(Modifier.padding(10.dp)) {
+    Column(Modifier.padding(10.dp).fillMaxSize()) {
         val platform = LocalPlatform.current
         val coroutineScope = rememberCoroutineScope()
         val contentIdState: MutableStateFlow<String?> = remember { MutableStateFlow(null) }
@@ -106,7 +107,6 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                 label = { Text("Caption") },
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-//                alignment = Alignment.Center,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -135,7 +135,7 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                         localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
                     }
                 }
-            }) {
+            }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
                 Text("Post!")
             }
         }
