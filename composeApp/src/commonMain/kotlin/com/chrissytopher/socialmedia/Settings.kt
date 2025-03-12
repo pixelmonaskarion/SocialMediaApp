@@ -1,5 +1,6 @@
 package com.chrissytopher.socialmedia
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -54,7 +55,9 @@ fun Settings (viewModel: AppViewModel) {
         }
         Row() {
             Text("Quag")
-            Icon(if (quag){Icons.Outlined.ToggleOn} else {Icons.Outlined.ToggleOff}, "quag toggle")
+            Icon(if (quag){Icons.Outlined.ToggleOn} else {Icons.Outlined.ToggleOff}, "quag toggle", Modifier.clickable(enabled = true) {
+                viewModel.toggleQuag()
+            })
         }
 
     }
