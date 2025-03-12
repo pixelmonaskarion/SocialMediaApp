@@ -9,6 +9,8 @@ import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Forward
 import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material.icons.outlined.ToggleOff
+import androidx.compose.material.icons.outlined.ToggleOn
 import androidx.compose.material.icons.sharp.Forward
 import androidx.compose.material.icons.sharp.ThumbUp
 import androidx.compose.material3.ElevatedFilterChip
@@ -31,14 +33,29 @@ val likeIcons = listOf(
 @Composable
 fun Settings (viewModel: AppViewModel) {
     val selectedLikeIcon by viewModel.likeIcon
+    val quag by viewModel.quag
     Column {
         Text("Like Icon:", Modifier.padding(10.dp, 0.dp))
-        Row{
+        Row {
             for (i in 0..2) {
-                ElevatedFilterChip(selected = selectedLikeIcon == i, onClick = { viewModel.setLikeIcon(i) }, label = { Icon(if (selectedLikeIcon != i) {
-                    likeIcons[i].first} else {
-                    likeIcons[i].second}, null)})
+                ElevatedFilterChip(
+                    selected = selectedLikeIcon == i,
+                    onClick = { viewModel.setLikeIcon(i) },
+                    label = {
+                        Icon(
+                            if (selectedLikeIcon != i) {
+                                likeIcons[i].first
+                            } else {
+                                likeIcons[i].second
+                            }, null
+                        )
+                    })
             }
         }
+        Row() {
+            Text("Quag")
+            Icon(if (quag){Icons.Outlined.ToggleOn} else {Icons.Outlined.ToggleOff}, "quag toggle")
+        }
+
     }
 }
