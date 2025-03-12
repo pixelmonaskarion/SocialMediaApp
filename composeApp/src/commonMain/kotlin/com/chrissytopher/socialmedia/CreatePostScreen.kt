@@ -54,13 +54,15 @@ import androidx.compose.ui.graphics.Color
 
 @Composable
 fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(Res.drawable.dancing_quag),
-            contentDescription = "BG Image",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
+    if(viewModel.quag.value) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(Res.drawable.dancing_quag),
+                contentDescription = "BG Image",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
     }
     Column(Modifier.padding(10.dp).fillMaxSize()) {
         val platform = LocalPlatform.current
