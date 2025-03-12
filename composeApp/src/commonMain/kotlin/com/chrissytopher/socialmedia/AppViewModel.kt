@@ -27,9 +27,14 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
     abstract val permissionsController: PermissionsController
     abstract val locationTracker: LocationTracker
     private val _likeIcon = mutableStateOf(kvault.int(LIKE_ICON_KEY) ?: 0)
-    private val _quag = mutableStateOf(kvault.bool(QUAG_KEY) ?: false)
+    private val _quag = mutableStateOf(kvault.bool(QUAG_KEY) ?: true)
     val likeIcon: State<Int> = _likeIcon
     val quag: State<Boolean> = _quag
+
+    fun toggleQuag() {
+        _quag.value = !_quag.value
+        kvault.set(QUAG_KEY, !_quag.value)
+    }
 
     fun setLikeIcon(new: Int) {
         _likeIcon.value = new
