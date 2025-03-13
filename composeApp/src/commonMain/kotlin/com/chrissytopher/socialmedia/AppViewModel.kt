@@ -31,6 +31,7 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
     val likeIcon: State<Int> = _likeIcon
     val quag: State<Boolean> = _quag
 
+
     fun toggleQuag() {
         _quag.value = !_quag.value
         kvault.set(QUAG_KEY, !_quag.value)
