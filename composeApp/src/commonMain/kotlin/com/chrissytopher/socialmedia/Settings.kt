@@ -60,11 +60,11 @@ fun Settings (viewModel: AppViewModel) {
         }
 
 
-        settingToggle("Quag Toggle ", quag, "Quag Toggle", viewModel){
+        settingToggle("Quag Toggle ", quag){
             viewModel.toggleQuag()
         }
 
-        settingToggle("Dark Mode ", darkMode, "Dark Mode Toggle", viewModel) {
+        settingToggle("Dark Mode ", darkMode) {
             viewModel.toggleDarkMode()
         }
 
@@ -72,7 +72,7 @@ fun Settings (viewModel: AppViewModel) {
 }
 
 @Composable
-fun settingToggle(Key: String, setting: Boolean, description: String, viewModel: AppViewModel, func: ()-> Unit) {
+fun settingToggle(Key: String, setting: Boolean, func: ()-> Unit) {
     Row(Modifier.padding(5.dp).size(1000.dp, 30.dp)) {
         Text(Key,Modifier.align(Alignment.CenterVertically), style = MaterialTheme.typography.titleLarge)
         Switch(checked = setting, onCheckedChange = { func() })
