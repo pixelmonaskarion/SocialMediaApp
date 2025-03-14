@@ -1,26 +1,17 @@
 package com.chrissytopher.socialmedia
 
-//import androidx.compose.foundation.gestures.scrollable
-//import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.Image
-//import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-//import androidx.compose.foundation.layout.BoxScopeInstance.align
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-//import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-//import androidx.compose.foundation.layout.size
-//import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-//import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -37,7 +28,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-//import com.chrissytopher.socialmedia.navigation.NavigationController
 import com.chrissytopher.socialmedia.navigation.NavigationStack
 import dev.icerock.moko.geo.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,9 +37,19 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.compose.resources.painterResource
-//import coil3.compose.AsyncImage
 import socialmediaapp.composeapp.generated.resources.Res
 import socialmediaapp.composeapp.generated.resources.dancing_quag
+//import androidx.compose.foundation.gestures.scrollable
+//import androidx.compose.foundation.layout.Arrangement
+//import androidx.compose.foundation.background
+//import androidx.compose.foundation.layout.BoxScopeInstance.align
+//import androidx.compose.foundation.layout.offset
+//import androidx.compose.foundation.layout.size
+//import androidx.compose.foundation.rememberScrollState
+//import androidx.compose.foundation.verticalScroll
+//import androidx.compose.material3.contentColorFor
+//import com.chrissytopher.socialmedia.navigation.NavigationController
+//import coil3.compose.AsyncImage
 //import androidx.compose.ui.graphics.Color
 
 
