@@ -39,6 +39,9 @@ import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.compose.resources.painterResource
 import socialmediaapp.composeapp.generated.resources.Res
 import socialmediaapp.composeapp.generated.resources.dancing_quag
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.graphics.ImageBitmap
 //import androidx.compose.foundation.gestures.scrollable
 //import androidx.compose.foundation.layout.Arrangement
 //import androidx.compose.foundation.background
@@ -51,7 +54,6 @@ import socialmediaapp.composeapp.generated.resources.dancing_quag
 //import com.chrissytopher.socialmedia.navigation.NavigationController
 //import coil3.compose.AsyncImage
 //import androidx.compose.ui.graphics.Color
-
 
 @Composable
 fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>) {
@@ -105,6 +107,11 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
             }
             var caption by remember { mutableStateOf("") }
             val keyboardController = LocalSoftwareKeyboardController.current
+            Text(
+                text = "Add a caption!",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
             OutlinedTextField(caption, onValueChange = {
                 caption = it },
                 label = { Text("Caption") },
@@ -118,6 +125,18 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     focusedTextColor = MaterialTheme.colorScheme.onSurface
                 )
             )
+            image.value?.let { imageData ->
+                val decodedImage = decodedImage(imageData)
+                Image(
+                    bitmap = decodedImage,
+                    contentDescription = "selected image",
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 10.dp)
+                        .size(200.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
             val localSnackbar = LocalSnackbarState.current
             Button(onClick = {
                 keyboardController?.hide()
