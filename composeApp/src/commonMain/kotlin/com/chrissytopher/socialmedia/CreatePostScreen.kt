@@ -133,9 +133,14 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(top = 10.dp)
-                        .size(200.dp),
+                        .size(500.dp),
                     contentScale = ContentScale.Crop
                 )
+            }
+            Button(onClick = {
+                contentIdState.value = null
+            }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text("Chose another")
             }
             val localSnackbar = LocalSnackbarState.current
             Button(onClick = {
@@ -153,8 +158,8 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     )))
                     val res = viewModel.apiClient.uploadPostInfo(postInfo)
                     if (res.isSuccess) {
-                        navHost.popStack()
                         localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
+                        navHost.popStack()
                     } else {
                         localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
                     }
