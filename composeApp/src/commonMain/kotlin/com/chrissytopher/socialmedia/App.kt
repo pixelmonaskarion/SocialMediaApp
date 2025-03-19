@@ -73,7 +73,8 @@ fun AppBottomBar(currentScreenState: State<NavScreen>, select: (NavScreen) -> Un
 @Preview
 fun App(viewModel: AppViewModel) {
     val navigationStack : NavigationStack<NavScreen> = remember { NavigationStack(if (viewModel.authenticationManager.loggedIn()) NavScreen.Home else NavScreen.Login) }
-    MaterialTheme {
+    val darkMode by viewModel.darkMode
+    LocalPlatform.current.AppTheme(darkTheme = darkMode) {
         CompositionLocalProvider(LocalNavHost provides navigationStack) {
             Scaffold(
                 bottomBar = {

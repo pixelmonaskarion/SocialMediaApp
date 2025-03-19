@@ -1,8 +1,11 @@
 package com.chrissytopher.socialmedia
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
@@ -60,20 +63,25 @@ fun Settings (viewModel: AppViewModel) {
         }
 
 
-        settingToggle("Quag Toggle ", quag){
+        SettingToggle(1,"Quag Toggle ", quag){
             viewModel.toggleQuag()
         }
 
-        settingToggle("Dark Mode ", darkMode) {
-            viewModel.toggleDarkMode()
+        val systemDarkTheme = isSystemInDarkTheme()
+        SettingToggle(0,"Dark Mode ", darkMode ?: systemDarkTheme) {
+            viewModel.setDarkMode(darkMode?.not() ?: !systemDarkTheme)
         }
 
     }
 }
 
 @Composable
-fun settingToggle(Key: String, setting: Boolean, func: ()-> Unit) {
-    Row(Modifier.padding(5.dp).size(1000.dp, 30.dp)) {
+fun SettingToggle(type: Int, Key: String, setting: Boolean, func: ()-> Unit) {
+    val typeModifier = when (type) {
+        0 -> Modifier.fillMaxWidth()
+        else -> Modifier
+    }
+    Row(Modifier.padding(5.dp).height(30.dp).then(typeModifier)) {
         Text(Key,Modifier.align(Alignment.CenterVertically), style = MaterialTheme.typography.titleLarge)
         Switch(checked = setting, onCheckedChange = { func() })
     }

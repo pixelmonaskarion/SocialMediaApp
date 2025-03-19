@@ -1,15 +1,24 @@
 package com.chrissytopher.socialmedia
 
 import android.content.Context
+import android.os.Build
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import com.chrissytopher.socialmedia.theme.AppTypography
+import com.chrissytopher.socialmedia.theme.darkScheme
+import com.chrissytopher.socialmedia.theme.lightScheme
 import com.liftric.kvault.KVault
 import dev.icerock.moko.geo.LocationTracker
 import dev.icerock.moko.permissions.PermissionsController
@@ -45,6 +54,30 @@ class AndroidPlatform(private val mainActivity: MainActivity) : Platform {
         }
         mainActivity.imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         return channel.receive()
+    }
+
+    @Composable
+    override fun AppTheme(
+        darkTheme: Boolean?,
+        // Dynamic color is available on Android 12+
+        dynamicColor: Boolean,
+        content: @Composable () -> Unit
+    ) {
+        val colorScheme = when {
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                val context = LocalContext.current
+                if (darkTheme ?: isSystemInDarkTheme()) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            }
+
+            darkTheme ?: isSystemInDarkTheme() -> darkScheme
+            else -> lightScheme
+        }
+
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AppTypography,
+            content = content
+        )
     }
 }
 

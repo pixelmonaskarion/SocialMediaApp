@@ -28,10 +28,10 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
     abstract val locationTracker: LocationTracker
     private val _likeIcon = mutableStateOf(kvault.int(LIKE_ICON_KEY) ?: 0)
     private val _quag = mutableStateOf(kvault.bool(QUAG_KEY) ?: true)
-    private val _darkMode = mutableStateOf(kvault.bool(DARK_MODE_KEY) ?: false)
+    private val _darkMode = mutableStateOf(kvault.bool(DARK_MODE_KEY))
     val likeIcon: State<Int> = _likeIcon
     val quag: State<Boolean> = _quag
-    val darkMode: State<Boolean> = _darkMode
+    val darkMode: State<Boolean?> = _darkMode
 
     fun setLikeIcon(new: Int) {
         _likeIcon.value = new
@@ -42,9 +42,9 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
         kvault.set(QUAG_KEY, !_quag.value)
     }
 
-    fun toggleDarkMode() {
-        _darkMode.value = !_darkMode.value
-        kvault.set(DARK_MODE_KEY, !_darkMode.value)
+    fun setDarkMode(new: Boolean) {
+        _darkMode.value = new
+        kvault.set(DARK_MODE_KEY, new)
     }
 
     abstract val platformContext: PlatformContext
