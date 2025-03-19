@@ -1,5 +1,8 @@
 package com.chrissytopher.socialmedia
 
+import com.chrissytopher.socialmedia.navigation.NavigationStack
+import socialmediaapp.composeapp.generated.resources.Res
+import socialmediaapp.composeapp.generated.resources.dancing_quag
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -28,7 +32,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.chrissytopher.socialmedia.navigation.NavigationStack
 import dev.icerock.moko.geo.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -37,11 +40,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.compose.resources.painterResource
-import socialmediaapp.composeapp.generated.resources.Res
-import socialmediaapp.composeapp.generated.resources.dancing_quag
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.size
-import androidx.compose.ui.graphics.ImageBitmap
+//import androidx.compose.foundation.Image
+//import androidx.compose.ui.graphics.ImageBitmap
 //import androidx.compose.foundation.gestures.scrollable
 //import androidx.compose.foundation.layout.Arrangement
 //import androidx.compose.foundation.background
@@ -133,9 +133,14 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
                         .padding(top = 10.dp)
-                        .size(200.dp),
+                        .size(500.dp),
                     contentScale = ContentScale.Crop
                 )
+            }
+            Button(onClick = {
+                contentIdState.value = null
+            }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text("Chose another")
             }
             val localSnackbar = LocalSnackbarState.current
             Button(onClick = {
@@ -153,8 +158,8 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     )))
                     val res = viewModel.apiClient.uploadPostInfo(postInfo)
                     if (res.isSuccess) {
-                        navHost.popStack()
                         localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
+                        navHost.popStack()
                     } else {
                         localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
                     }
