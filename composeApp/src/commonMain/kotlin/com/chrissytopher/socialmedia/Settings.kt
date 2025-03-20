@@ -42,7 +42,7 @@ val likeIcons = listOf(
 
 @Composable
 fun Settings (viewModel: AppViewModel) {
-    if (viewModel.settingsSet.value) {
+    if (viewModel.settingFormat.value == 0) {
         val selectedLikeIcon by viewModel.likeIcon
         val quag by viewModel.quag
         val darkMode by viewModel.darkMode
@@ -76,18 +76,20 @@ fun Settings (viewModel: AppViewModel) {
             }
 
             val systemDarkTheme = isSystemInDarkTheme()
-            settingToggle(0, "Dark Mode ", darkMode ?: systemDarkTheme) {
+            settingToggle(1, "Dark Mode ", darkMode ?: systemDarkTheme) {
                 viewModel.setDarkMode(darkMode?.not() ?: !systemDarkTheme)
             }
 
         }
+    } else {
+        viewModel.setSettingFormat(1)
     }
 }
 
 @Composable
 fun settingToggle(type: Int, key: String, setting: Boolean, func: () -> Unit) {
     val typeModifier = when (type) {
-        0 -> Modifier.fillMaxWidth()
+        1 -> Modifier.fillMaxWidth()
         else -> Modifier
     }
     Row(Modifier.padding(5.dp).height(30.dp).then(typeModifier)) {
