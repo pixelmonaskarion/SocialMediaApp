@@ -142,6 +142,12 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
             }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
                 Text("Chose another")
             }
+            Button( onClick = {
+                contentIdState.value = null
+                navHost.popStack()
+            }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text("Cancel")
+            }
             val localSnackbar = LocalSnackbarState.current
             Button(onClick = {
                 keyboardController?.hide()
