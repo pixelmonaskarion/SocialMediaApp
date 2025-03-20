@@ -27,6 +27,7 @@ supreme = "0.6.2"
 kotlinxDatetime = "0.6.1"
 permissionsCompose = "0.18.0"
 uiGraphicsAndroid = "1.7.8"
+foundationAndroid = "1.7.8"
 
 [libraries]
 atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
@@ -61,6 +62,7 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 supreme = { module = "at.asitplus.signum:supreme", version.ref = "supreme" }
 permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "permissionsCompose" }
+androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 androidx-ui-graphics-android = { group = "androidx.compose.ui", name = "ui-graphics-android", version.ref = "uiGraphicsAndroid" }
 
 [plugins]

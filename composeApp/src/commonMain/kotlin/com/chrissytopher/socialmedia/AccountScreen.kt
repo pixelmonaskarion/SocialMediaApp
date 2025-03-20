@@ -2,6 +2,7 @@ package com.chrissytopher.socialmedia
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Column
@@ -36,13 +37,11 @@ import coil3.Uri
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
-
-//import android.graphics.Bitmap
-//import android.graphics.Rect
-//import android.graphics.BitmapFactory
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Slider
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.sourceInformationMarkerEnd
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
@@ -57,14 +56,16 @@ import coil3.Bitmap
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.compose.AsyncImagePainter
+import com.chrissytopher.socialmedia.navigation.NavigationStack
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 
 
+
 @Composable
-fun AccountSettingScreen(viewModel: AppViewModel) {
+fun AccountSettingScreen(viewModel: AppViewModel,navHost:NavigationStack<NavScreen>) {
     val platform = LocalPlatform.current
     val coroutineScope = rememberCoroutineScope()
     var username: String? by remember { mutableStateOf(null)}
@@ -87,11 +88,15 @@ fun AccountSettingScreen(viewModel: AppViewModel) {
         var outputSize by remember{mutableStateOf(0f)}
         val painter = rememberAsyncImagePainter(model = profilePicture)
         //val painterState = painter.state//.collectAsState()
-        Image(
-            painter = painter,
-            contentDescription = "User profile picture",
-            modifier = croppingScream(xPosition,yPosition,inputSize,outputSize.toInt())
-        )
+        //val navigationStack : NavigationStack<NavScreen> = remember { NavigationStack(if (viewModel.authenticationManager.loggedIn()) NavScreen.Home else NavScreen.Login) }
+        //CompositionLocalProvider(LocalNavHost provides navHost) {
+            Image(
+                painter = painter,
+                contentDescription = "User profile picture",
+                modifier = croppingScream(xPosition,yPosition,inputSize,outputSize.toInt())
+                    .clickable(onClick = {navHost.navigateTo(NavScreen.CropScreen )})
+            )
+        //}
         Slider(
             modifier = Modifier.semantics { contentDescription = "Y translate" },
             value = yPosition,
@@ -135,15 +140,15 @@ fun croppingScream(x:Float,y:Float,scalingFactor: Float,outputSize: Int):Modifie
     var scaledH:Int by mutableStateOf(0) //annotated as SH on graph - represents the height of the scaled image
     var sX:Int by mutableStateOf(0) //coord of upper left corner of scaled image
     var sY:Int by mutableStateOf(0)//coord of upper left corner of scaled image
-    var cS = outputSize
+    var cS = outputSize //crop size
     var cX:Int by mutableStateOf(0) //center of cropped output image
     var cY:Int by mutableStateOf(0)//center of cropped output image
     var originCX:Int by mutableStateOf(0) //upper left hand corner of cropped image
     var originCY:Int by mutableStateOf(0) //upper left hand corner of cropped image
 
     return Modifier
-        .clip(RectangleShape)
-        //.border(1.dp,Color.Blue,RectangleShape)
+        //.clip(RectangleShape)
+        .border(1.dp,Color.Blue,RectangleShape)
         .layout{measurable,constraints->
             val placeable = measurable.measure(constraints)
             originalW = placeable.width
@@ -181,7 +186,7 @@ fun croppingScream(x:Float,y:Float,scalingFactor: Float,outputSize: Int):Modifie
                 cY-(cS/2)
             }
             if(cS <scaledH && cS < scaledW){
-                layout(width =cS, height = cS.toInt()) {
+                layout(width =cS, height = cS) {
                     placeable.place(-originCX,-originCY)
                 }
             }
@@ -216,7 +221,7 @@ fun croppingScream(x:Float,y:Float,scalingFactor: Float,outputSize: Int):Modifie
                 }
             }
         }
-        //.border(1.dp,Color.Red,RectangleShape)
+        .border(1.dp,Color.Red,RectangleShape)
         .scale(scalingFactor)
 
 }

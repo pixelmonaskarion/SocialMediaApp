@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Crop
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Create
+import androidx.compose.material.icons.outlined.Crop
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
@@ -47,6 +49,7 @@ enum class NavScreen(val selectedIcon: ImageVector, val unselectedIcon: ImageVec
     Settings(Icons.Filled.Settings, Icons.Outlined.Settings),
     Account(Icons.Filled.AccountCircle, Icons.Outlined.AccountCircle),
     CreatePost(Icons.Filled.Create, Icons.Outlined.Create),
+    CropScreen(Icons.Filled.Crop, Icons.Outlined.Crop,showInNavBar = false)
 }
 
 @Composable
@@ -112,10 +115,13 @@ fun App(viewModel: AppViewModel) {
                         }
                     }
                     composable(route = NavScreen.Account) {
-                        AccountSettingScreen(viewModel)
+                        AccountSettingScreen(viewModel,navigationStack)
                     }
                     composable(route = NavScreen.CreatePost) {
                         CreatePostScreen(viewModel, navigationStack)
+                    }
+                    composable(route = NavScreen.CropScreen){
+                        CropScreen(viewModel,navigationStack)
                     }
                 }
             }
