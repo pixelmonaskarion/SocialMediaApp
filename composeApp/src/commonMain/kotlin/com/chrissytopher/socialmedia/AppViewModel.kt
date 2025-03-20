@@ -26,14 +26,19 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
     open val apiClient = ServerApi(authenticationManager = authenticationManager)
     abstract val permissionsController: PermissionsController
     abstract val locationTracker: LocationTracker
-    private val _settingsSet = mutableStateOf(kvault.bool(SETTINGS_SETUP_KEY) ?: false)
+    private val _settingFormat = mutableStateOf(kvault.int(SETTING_FORMAT_KEY) ?: 0)
     private val _likeIcon = mutableStateOf(kvault.int(LIKE_ICON_KEY) ?: 0)
     private val _quag = mutableStateOf(kvault.bool(QUAG_KEY) ?: true)
     private val _darkMode = mutableStateOf(kvault.bool(DARK_MODE_KEY))
-    val settingsSet: State<Boolean> = _settingsSet
+    val settingFormat: State<Int> = _settingFormat
     val likeIcon: State<Int> = _likeIcon
     val quag: State<Boolean> = _quag
     val darkMode: State<Boolean?> = _darkMode
+
+    fun setSettingFormat(new: Int) {
+        _settingFormat.value = new
+        kvault.set(SETTING_FORMAT_KEY, new)
+    }
 
     fun setLikeIcon(new: Int) {
         _likeIcon.value = new
