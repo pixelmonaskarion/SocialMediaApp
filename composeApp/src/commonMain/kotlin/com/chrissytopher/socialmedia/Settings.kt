@@ -42,49 +42,62 @@ val likeIcons = listOf(
 
 @Composable
 fun Settings (viewModel: AppViewModel) {
-    val selectedLikeIcon by viewModel.likeIcon
-    val quag by viewModel.quag
-    val darkMode by viewModel.darkMode
-    Column {
-        Text("Like Icon:", Modifier.padding(10.dp, 0.dp), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
-        Row {
-            for (i in 0..2) {
-                ElevatedFilterChip(
-                    selected = selectedLikeIcon == i,
-                    onClick = { viewModel.setLikeIcon(i) },
-                    label = {
-                        Icon(
-                            if (selectedLikeIcon != i) {
-                                likeIcons[i].first
-                            } else {
-                                likeIcons[i].second
-                            }, null
-                        )
-                    })
+    if (viewModel.settingsSet.value) {
+        val selectedLikeIcon by viewModel.likeIcon
+        val quag by viewModel.quag
+        val darkMode by viewModel.darkMode
+        Column {
+            Text(
+                "Like Icon:",
+                Modifier.padding(10.dp, 0.dp),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Row {
+                for (i in 0..2) {
+                    ElevatedFilterChip(
+                        selected = selectedLikeIcon == i,
+                        onClick = { viewModel.setLikeIcon(i) },
+                        label = {
+                            Icon(
+                                if (selectedLikeIcon != i) {
+                                    likeIcons[i].first
+                                } else {
+                                    likeIcons[i].second
+                                }, null
+                            )
+                        })
+                }
             }
+
+
+            settingToggle(1, "Quag Toggle ", quag) {
+                viewModel.toggleQuag()
+            }
+
+            val systemDarkTheme = isSystemInDarkTheme()
+            settingToggle(0, "Dark Mode ", darkMode ?: systemDarkTheme) {
+                viewModel.setDarkMode(darkMode?.not() ?: !systemDarkTheme)
+            }
+
         }
-
-
-        SettingToggle(1,"Quag Toggle ", quag){
-            viewModel.toggleQuag()
-        }
-
-        val systemDarkTheme = isSystemInDarkTheme()
-        SettingToggle(0,"Dark Mode ", darkMode ?: systemDarkTheme) {
-            viewModel.setDarkMode(darkMode?.not() ?: !systemDarkTheme)
-        }
-
     }
 }
 
 @Composable
-fun SettingToggle(type: Int, key: String, setting: Boolean, func: ()-> Unit) {
+fun settingToggle(type: Int, key: String, setting: Boolean, func: () -> Unit) {
     val typeModifier = when (type) {
         0 -> Modifier.fillMaxWidth()
         else -> Modifier
     }
     Row(Modifier.padding(5.dp).height(30.dp).then(typeModifier)) {
-        Text(key,Modifier.align(Alignment.CenterVertically), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+        Text(
+            key,
+            Modifier.align(Alignment.CenterVertically),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface
+        )
         Switch(checked = setting, onCheckedChange = { func() })
     }
 }
+
