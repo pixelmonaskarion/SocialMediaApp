@@ -69,8 +69,7 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                 contentDescription = "BG Image",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
-            )
-        }
+            )}
     }
     Column(Modifier.padding(10.dp).fillMaxSize().verticalScroll(rememberScrollState())) {
         val platform = LocalPlatform.current
