@@ -1,10 +1,8 @@
 package com.chrissytopher.socialmedia
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.IntSize
-import com.liftric.kvault.KVault
-import dev.icerock.moko.geo.LocationTracker
-import dev.icerock.moko.permissions.PermissionsController
 import kotlinx.io.Source
 
 interface Platform {
@@ -14,6 +12,15 @@ interface Platform {
 
     @Composable
     fun BackHandler(enabled: Boolean, onBack: () -> Unit)
+
+    @Composable
+    fun AppTheme(
+        darkTheme: Boolean?,
+        // Dynamic color is available on Android 12+
+        dynamicColor: Boolean = true,
+        content: @Composable () -> Unit
+    )
+
 
     suspend fun pickImages(): List<Source>
 }

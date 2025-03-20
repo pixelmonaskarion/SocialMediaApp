@@ -27,14 +27,26 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
     abstract val permissionsController: PermissionsController
     abstract val locationTracker: LocationTracker
     private val _likeIcon = mutableStateOf(kvault.int(LIKE_ICON_KEY) ?: 0)
-    private val _quag = mutableStateOf(kvault.bool(QUAG_KEY) ?: false)
+    private val _quag = mutableStateOf(kvault.bool(QUAG_KEY) ?: true)
+    private val _darkMode = mutableStateOf(kvault.bool(DARK_MODE_KEY))
     val likeIcon: State<Int> = _likeIcon
     val quag: State<Boolean> = _quag
+    val darkMode: State<Boolean?> = _darkMode
 
     fun setLikeIcon(new: Int) {
         _likeIcon.value = new
         kvault.set(LIKE_ICON_KEY, new)
     }
+    fun toggleQuag() {
+        _quag.value = !_quag.value
+        kvault.set(QUAG_KEY, !_quag.value)
+    }
+
+    fun setDarkMode(new: Boolean) {
+        _darkMode.value = new
+        kvault.set(DARK_MODE_KEY, new)
+    }
+
     abstract val platformContext: PlatformContext
 
     var currentPosts: Flow<List<PostRepresentation>>? = null

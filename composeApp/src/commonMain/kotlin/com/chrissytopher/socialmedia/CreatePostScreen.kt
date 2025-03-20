@@ -1,19 +1,16 @@
 package com.chrissytopher.socialmedia
 
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Arrangement
+import com.chrissytopher.socialmedia.navigation.NavigationStack
+import socialmediaapp.composeapp.generated.resources.Res
+import socialmediaapp.composeapp.generated.resources.dancing_quag
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -29,13 +26,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.chrissytopher.socialmedia.navigation.NavigationController
-import com.chrissytopher.socialmedia.navigation.NavigationStack
 import dev.icerock.moko.geo.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -44,23 +40,34 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.compose.resources.painterResource
-import coil3.compose.AsyncImage
-import socialmediaapp.composeapp.generated.resources.Res
-import socialmediaapp.composeapp.generated.resources.dancing_quag
-import androidx.compose.ui.graphics.Color
-
+//import androidx.compose.foundation.Image
+//import androidx.compose.ui.graphics.ImageBitmap
+//import androidx.compose.foundation.gestures.scrollable
+//import androidx.compose.foundation.layout.Arrangement
+//import androidx.compose.foundation.background
+//import androidx.compose.foundation.layout.BoxScopeInstance.align
+//import androidx.compose.foundation.layout.offset
+//import androidx.compose.foundation.layout.size
+//import androidx.compose.foundation.rememberScrollState
+//import androidx.compose.foundation.verticalScroll
+//import androidx.compose.material3.contentColorFor
+//import com.chrissytopher.socialmedia.navigation.NavigationController
+//import coil3.compose.AsyncImage
+//import androidx.compose.ui.graphics.Color
 
 @Composable
 fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(Res.drawable.dancing_quag),
-            contentDescription = "BG Image",
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
+    if(viewModel.quag.value) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painterResource(Res.drawable.dancing_quag),
+                contentDescription = "BG Image",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        }
     }
-    Column(Modifier.padding(10.dp)) {
+    Column(Modifier.padding(10.dp).fillMaxSize()) {
         val platform = LocalPlatform.current
         val coroutineScope = rememberCoroutineScope()
         val contentIdState: MutableStateFlow<String?> = remember { MutableStateFlow(null) }
@@ -100,16 +107,41 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
             }
             var caption by remember { mutableStateOf("") }
             val keyboardController = LocalSoftwareKeyboardController.current
+            Text(
+                text = "Add a caption!",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
             OutlinedTextField(caption, onValueChange = {
                 caption = it },
                 label = { Text("Caption") },
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface
                 )
             )
+            image.value?.let { imageData ->
+                val decodedImage = decodedImage(imageData)
+                Image(
+                    bitmap = decodedImage,
+                    contentDescription = "selected image",
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 10.dp)
+                        .size(500.dp),
+                    contentScale = ContentScale.Crop
+                )
+            }
+            Button(onClick = {
+                contentIdState.value = null
+            }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text("Chose another")
+            }
             val localSnackbar = LocalSnackbarState.current
             Button(onClick = {
                 keyboardController?.hide()
@@ -126,13 +158,13 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     )))
                     val res = viewModel.apiClient.uploadPostInfo(postInfo)
                     if (res.isSuccess) {
-                        navHost.popStack()
                         localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
+                        navHost.popStack()
                     } else {
                         localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
                     }
                 }
-            }) {
+            }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
                 Text("Post!")
             }
         }
