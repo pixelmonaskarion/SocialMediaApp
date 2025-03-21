@@ -4,10 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Favorite
@@ -42,7 +44,8 @@ val likeIcons = listOf(
 
 @Composable
 fun Settings (viewModel: AppViewModel) {
-    if (viewModel.settingFormat.value == 0) {
+    val settingFormat by viewModel.settingFormat
+    if (settingFormat == 0) {
         val selectedLikeIcon by viewModel.likeIcon
         val quag by viewModel.quag
         val darkMode by viewModel.darkMode
@@ -71,12 +74,12 @@ fun Settings (viewModel: AppViewModel) {
             }
 
 
-            settingToggle(1, "Quag Toggle ", quag) {
+            settingToggle(settingFormat, "Quag Toggle ", quag) {
                 viewModel.toggleQuag()
             }
 
             val systemDarkTheme = isSystemInDarkTheme()
-            settingToggle(1, "Dark Mode ", darkMode ?: systemDarkTheme) {
+            settingToggle(settingFormat, "Dark Mode ", darkMode ?: systemDarkTheme) {
                 viewModel.setDarkMode(darkMode?.not() ?: !systemDarkTheme)
             }
 
@@ -89,17 +92,23 @@ fun Settings (viewModel: AppViewModel) {
 @Composable
 fun settingToggle(type: Int, key: String, setting: Boolean, func: () -> Unit) {
     val typeModifier = when (type) {
-        1 -> Modifier.fillMaxWidth()
-        else -> Modifier
+        1 -> Pair(Modifier.fillMaxWidth(), Modifier.width(680.dp))
+        else -> Pair(Modifier, Modifier)
     }
-    Row(Modifier.padding(5.dp).height(30.dp).then(typeModifier)) {
+    Row(Modifier.padding(5.dp).height(30.dp).then(typeModifier.first)) {
         Text(
             key,
-            Modifier.align(Alignment.CenterVertically),
+            Modifier.align(Alignment.CenterVertically).then(typeModifier.second),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
+        Spacer(Modifier)
         Switch(checked = setting, onCheckedChange = { func() })
     }
+}
+
+@Composable
+fun settingFormatPicker() {
+
 }
 
