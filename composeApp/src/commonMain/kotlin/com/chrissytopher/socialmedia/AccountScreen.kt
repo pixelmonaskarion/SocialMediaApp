@@ -90,6 +90,7 @@ fun AccountSettingScreen(viewModel: AppViewModel,navHost:NavigationStack<NavScre
         outputSize = 50
     }
     val painter = rememberAsyncImagePainter(model = profilePicture)
+    viewModel.changeIconImage(xPosition,yPosition,inputSize,outputSize,profilePicture)
     // I would put the image fetch request here
     Column(
         Modifier

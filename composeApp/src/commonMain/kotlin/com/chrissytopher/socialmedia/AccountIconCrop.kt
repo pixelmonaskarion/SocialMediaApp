@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.chrissytopher.socialmedia.navigation.NavigationStack
 import kotlin.math.roundToInt
-
+import kotlin.math.pow
 //fun kVaultToValue(xPercent:Float,yPercent:Float,inputScale:Float,correctScale: Float){
 //    val offsetX = ((xPercent-0.5f)*finalWidth)-(cropSize/2)
 //    val offsetY = ((yPercent-0.5f)*finalHeight)-(cropSize/2)
@@ -51,15 +51,15 @@ fun CropScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>, ima
 {
     val platform = LocalPlatform.current
     val coroutineScope = rememberCoroutineScope()
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
-    var cropSize by remember{mutableStateOf(0f)}
     var screenWidth by remember{mutableStateOf(0)}
     var screenHeight by remember{mutableStateOf(0)}
     var finalWidth by remember { mutableStateOf(0) }
     var finalHeight by remember { mutableStateOf(0) }
-    var correctScale by remember{ mutableStateOf(0f)}
+    var correctScale by remember{ mutableStateOf(1f)}
     val outputSize = 400
+    var cropSize by remember{mutableStateOf(viewModel.cropSize.value)}
+    var offsetX by remember { mutableStateOf(viewModel.cropOffsetX.value) }
+    var offsetY by remember { mutableStateOf(viewModel.cropOffsetY.value) }
     val density = LocalDensity.current.density
     val painter = rememberAsyncImagePainter(model = imageLink)
     Row(horizontalArrangement = Arrangement.Center,modifier = Modifier
@@ -99,7 +99,6 @@ fun CropScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>, ima
                     painter = painter,
                     contentDescription = "User profile picture",
                     modifier = Modifier
-                        //.border(1.dp,Color.Blue, RectangleShape)
                         .clip(RectangleShape)
                         .layout{measurable,constraints->
                             val placeable = measurable.measure(constraints)
@@ -183,6 +182,7 @@ fun CropScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>, ima
                     }
                 }
             }
+                viewModel.changeCropSetting(offsetX,offsetY,cropSize)
 //            val xPercent = ((offsetX+(cropSize/2))/finalWidth) + 0.5f
 //            val yPercent = ((offsetY+(cropSize/2))/finalHeight) + 0.5f
 //            val adjustCropSize = 200
