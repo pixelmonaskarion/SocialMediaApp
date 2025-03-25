@@ -121,7 +121,7 @@ fun App(viewModel: AppViewModel) {
                         CreatePostScreen(viewModel, navigationStack)
                     }
                     composable(route = NavScreen.CropScreen){
-                        CropScreen(viewModel,navigationStack)
+                        CropScreen(viewModel,navigationStack,viewModel.iconImageLink.value)
                     }
                 }
             }
