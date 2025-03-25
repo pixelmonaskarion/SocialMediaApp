@@ -32,6 +32,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import dev.icerock.moko.geo.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -40,6 +42,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.compose.resources.painterResource
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 //import androidx.compose.foundation.Image
 //import androidx.compose.ui.graphics.ImageBitmap
 //import androidx.compose.foundation.gestures.scrollable
@@ -64,10 +69,9 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                 contentDescription = "BG Image",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
-            )
-        }
+            )}
     }
-    Column(Modifier.padding(10.dp).fillMaxSize()) {
+    Column(Modifier.padding(10.dp).fillMaxSize().verticalScroll(rememberScrollState())) {
         val platform = LocalPlatform.current
         val coroutineScope = rememberCoroutineScope()
         val contentIdState: MutableStateFlow<String?> = remember { MutableStateFlow(null) }
@@ -137,10 +141,17 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     contentScale = ContentScale.Crop
                 )
             }
-            Button(onClick = {
-                contentIdState.value = null
-            }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Text("Chose another")
+            Row(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(onClick = { contentIdState.value = null }) {
+                    Text("Chose another")
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Button(onClick = { contentIdState.value = null; navHost.popStack() }) {
+                    Text("Cancel")
+                }
             }
             val localSnackbar = LocalSnackbarState.current
             Button(onClick = {
