@@ -32,6 +32,17 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
     private val _quag = mutableStateOf(kvault.bool(QUAG_KEY) ?: true)
     private val _darkMode = mutableStateOf(kvault.bool(DARK_MODE_KEY))
     val settingFormat: State<Int> = _settingFormat
+
+    private val _iconImageLink = mutableStateOf(kvault.string(ICON_PIC_STRING)?:"")
+    private val _iconXPer = mutableStateOf(kvault.float(ICON_X_PER)?: 0.5f)
+    private val _iconYPer = mutableStateOf(kvault.float(ICON_Y_PER)?: 0.5f)
+    private val _iconScale = mutableStateOf(kvault.float(ICON_SCALE)?: 1f)
+    private val _iconOutSize = mutableStateOf(kvault.int(ICON_OUTPUT)?: 200)
+
+    private val _cropOffsetX = mutableStateOf(kvault.float(CROP_OFFSETX)?:0f)
+    private val _cropOffsetY = mutableStateOf(kvault.float(CROP_OFFSETY)?:0f)
+    private val _cropSize = mutableStateOf(kvault.float(CROP_SIZE)?:10f)
+
     val likeIcon: State<Int> = _likeIcon
     val quag: State<Boolean> = _quag
     val darkMode: State<Boolean?> = _darkMode
@@ -42,6 +53,7 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
             kvault.set(SETTING_FORMAT_KEY, new)
         }
     }
+
 
     fun setLikeIcon(new: Int) {
         _likeIcon.value = new
@@ -61,6 +73,36 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
         viewModelScope.launch {
             kvault.set(DARK_MODE_KEY, new)
         }
+    }
+    val iconXPer:State<Float> = _iconXPer
+    val iconImageLink:State<String?> = _iconImageLink
+    val iconYPer:State<Float> = _iconYPer
+    val iconScale:State<Float> = _iconScale
+    val iconOutputSize:State<Int> = _iconOutSize
+
+    val cropOffsetX:State<Float> = _cropOffsetX
+    val cropOffsetY:State<Float> = _cropOffsetY
+    val cropSize:State<Float> = _cropSize
+    fun changeIconImage(xPer:Float, yPer:Float,imageScale:Float,imageSize:Int,imageLink:String?){
+        _iconXPer.value = xPer
+        kvault.set(ICON_X_PER,xPer)
+        _iconYPer.value = yPer
+        kvault.set(ICON_Y_PER,yPer)
+        _iconScale.value = imageScale
+        kvault.set(ICON_SCALE,imageScale)
+        _iconOutSize.value = imageSize
+        if (imageLink != null){
+            _iconImageLink.value = imageLink
+            kvault.set(ICON_PIC_STRING,imageLink)
+        }
+    }
+    fun changeCropSetting(offsetX:Float,offsetY:Float,cropSize:Float){
+        _cropOffsetX.value = offsetX
+        kvault.set(CROP_OFFSETX,offsetX)
+        _cropOffsetY.value=offsetY
+        kvault.set(CROP_OFFSETY,offsetY)
+        _cropSize.value = cropSize
+        kvault.set(CROP_SIZE,cropSize)
     }
 
     abstract val platformContext: PlatformContext
