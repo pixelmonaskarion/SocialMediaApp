@@ -46,7 +46,7 @@ val likeIcons = listOf(
 @Composable
 fun Settings (viewModel: AppViewModel) {
     val settingFormat by viewModel.settingFormat
-    if (settingFormat == 0) {
+    if (settingFormat != 0) {
         val selectedLikeIcon by viewModel.likeIcon
         val quag by viewModel.quag
         val darkMode by viewModel.darkMode
@@ -84,18 +84,24 @@ fun Settings (viewModel: AppViewModel) {
                 viewModel.setDarkMode(darkMode?.not() ?: !systemDarkTheme)
             }
 
+            settingToggle(settingFormat, "Setting format", (settingFormat == 1)) {
+                viewModel.setSettingFormat(if (settingFormat == 1) 2 else 1)
+            }
+
         }
     } else {
-        viewModel.setSettingFormat(1)
+        viewModel.setSettingFormat(0)
     }
 }
 
 @Composable
 fun settingToggle(type: Int, key: String, setting: Boolean, func: () -> Unit) {
-    val typeModifier = when (type) {
-        1 -> Pair(Modifier.fillMaxWidth(), Arrangement.SpaceBetween)
-        else -> Pair(Modifier, Arrangement.Start)
-    }
+    val typeModifier =
+        when (type) {
+            1 -> Pair(Modifier.fillMaxWidth(), Arrangement.SpaceBetween)
+            else -> Pair(Modifier, Arrangement.Start)
+        }
+
     Row(Modifier.padding(5.dp).height(30.dp).then(typeModifier.first), horizontalArrangement = typeModifier.second) {
         Text(key, Modifier.align(Alignment.CenterVertically), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
         Switch(checked = setting, onCheckedChange = { func() })
