@@ -3,6 +3,7 @@ package com.chrissytopher.socialmedia
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.compose.asPainter
@@ -37,21 +38,29 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
 
     fun setSettingFormat(new: Int) {
         _settingFormat.value = new
-        kvault.set(SETTING_FORMAT_KEY, new)
+        viewModelScope.launch {
+            kvault.set(SETTING_FORMAT_KEY, new)
+        }
     }
 
     fun setLikeIcon(new: Int) {
         _likeIcon.value = new
-        kvault.set(LIKE_ICON_KEY, new)
+        viewModelScope.launch {
+            kvault.set(LIKE_ICON_KEY, new)
+        }
     }
     fun toggleQuag() {
         _quag.value = !_quag.value
-        kvault.set(QUAG_KEY, !_quag.value)
+        viewModelScope.launch {
+            kvault.set(QUAG_KEY, !_quag.value)
+        }
     }
 
     fun setDarkMode(new: Boolean) {
         _darkMode.value = new
-        kvault.set(DARK_MODE_KEY, new)
+        viewModelScope.launch {
+            kvault.set(DARK_MODE_KEY, new)
+        }
     }
 
     abstract val platformContext: PlatformContext

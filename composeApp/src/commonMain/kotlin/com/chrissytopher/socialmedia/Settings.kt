@@ -2,6 +2,7 @@ package com.chrissytopher.socialmedia
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -92,17 +93,11 @@ fun Settings (viewModel: AppViewModel) {
 @Composable
 fun settingToggle(type: Int, key: String, setting: Boolean, func: () -> Unit) {
     val typeModifier = when (type) {
-        1 -> Pair(Modifier.fillMaxWidth(), Modifier.width(680.dp))
-        else -> Pair(Modifier, Modifier)
+        1 -> Pair(Modifier.fillMaxWidth(), Arrangement.SpaceBetween)
+        else -> Pair(Modifier, Arrangement.Start)
     }
-    Row(Modifier.padding(5.dp).height(30.dp).then(typeModifier.first)) {
-        Text(
-            key,
-            Modifier.align(Alignment.CenterVertically).then(typeModifier.second),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Spacer(Modifier)
+    Row(Modifier.padding(5.dp).height(30.dp).then(typeModifier.first), horizontalArrangement = typeModifier.second) {
+        Text(key, Modifier.align(Alignment.CenterVertically), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
         Switch(checked = setting, onCheckedChange = { func() })
     }
 }
