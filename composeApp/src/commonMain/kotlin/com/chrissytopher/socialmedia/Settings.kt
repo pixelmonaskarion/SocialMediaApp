@@ -11,7 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -90,7 +91,7 @@ fun Settings (viewModel: AppViewModel) {
 
         }
     } else {
-        viewModel.setSettingFormat(0)
+        settingFormatPicker(viewModel)
     }
 }
 
@@ -109,7 +110,31 @@ fun settingToggle(type: Int, key: String, setting: Boolean, func: () -> Unit) {
 }
 
 @Composable
-fun settingFormatPicker() {
-
+fun settingFormatPicker(viewModel: AppViewModel) {
+    viewModel.setSettingFormat(1)
+//    Column {
+//        Text("Select A format", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.padding(20.dp))
+//        Row {
+//            Card(Modifier.weight(1f).padding(5.dp)) {
+//                Column {
+//                    for (n in 1..3) {
+//                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+//                            Text("setting ")
+//                            Icon(Icons.Outlined.ToggleOn, null)
+//                        }
+//                    }
+//                }
+//            }
+//            Card(Modifier.weight(1f).padding(5.dp)) {
+//                Column {
+//                    for (n in 1..3) {
+//                        Row() {
+//                            Text("setting " + "n".repeat(n%3))
+//                            Icon(Icons.Outlined.ToggleOn, null)
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
-
