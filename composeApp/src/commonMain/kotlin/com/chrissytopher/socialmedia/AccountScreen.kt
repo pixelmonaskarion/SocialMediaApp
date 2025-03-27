@@ -64,71 +64,82 @@ import kotlin.math.abs
 
 
 
+
 @Composable
 fun AccountSettingScreen(viewModel: AppViewModel,navHost:NavigationStack<NavScreen>) {
     val platform = LocalPlatform.current
     val coroutineScope = rememberCoroutineScope()
-    var username: String? by remember { mutableStateOf(null)}
-    var email: String? by remember {mutableStateOf(null)}
-    var profilePicture: String? by remember { mutableStateOf(null) }
-    if (viewModel.authenticationManager.loggedIn()){
+    var username: String? by remember { mutableStateOf(null) }
+    var email: String? by remember { mutableStateOf(null) }
+    if (viewModel.authenticationManager.loggedIn()) {
         username = viewModel.authenticationManager.username
         email = viewModel.authenticationManager.email
     }
+    var profilePicture: String? by remember { mutableStateOf(viewModel.iconImageLink.value) }
+    if (profilePicture == null) {
+        profilePicture = "https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg"
+    }
+    var yPosition by remember { mutableStateOf(viewModel.iconYPer.value) }
+    var xPosition by remember { mutableStateOf(viewModel.iconXPer.value) }
+    var inputSize by remember { mutableStateOf(viewModel.iconScale.value) }
+    if (100f <inputSize || inputSize < 0.25f){
+    inputSize = 1f
+    }
+    var outputSize by remember { mutableStateOf(viewModel.iconOutputSize.value) }
+    if (outputSize < 50) {
+        outputSize = 50
+    }
+    val painter = rememberAsyncImagePainter(model = profilePicture)
+    viewModel.changeIconImage(xPosition,yPosition,inputSize,outputSize,profilePicture)
     // I would put the image fetch request here
-    profilePicture = "https://upload.wikimedia.org/wikipedia/commons/a/a9/Grace_Abbott_1929.jpg"
-    Column(Modifier
-        .fillMaxWidth()
-        ,horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        Modifier
+            .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
+    ) {
 
         Spacer(Modifier.size(10.dp))
-        var yPosition by remember { mutableStateOf(0f) }
-        var xPosition by remember {mutableStateOf(0f)}
-        var inputSize by remember{mutableStateOf(0f)}
-        var outputSize by remember{mutableStateOf(0f)}
-        val painter = rememberAsyncImagePainter(model = profilePicture)
-        //val painterState = painter.state//.collectAsState()
-        //val navigationStack : NavigationStack<NavScreen> = remember { NavigationStack(if (viewModel.authenticationManager.loggedIn()) NavScreen.Home else NavScreen.Login) }
-        //CompositionLocalProvider(LocalNavHost provides navHost) {
-            Image(
-                painter = painter,
-                contentDescription = "User profile picture",
-                modifier = croppingScream(xPosition,yPosition,inputSize,outputSize.toInt())
-                    .clickable(onClick = {navHost.navigateTo(NavScreen.CropScreen )})
-            )
-        //}
+        Image(
+            painter = painter,
+            contentDescription = "User profile picture",
+            modifier = croppingScream(xPosition, yPosition, inputSize, outputSize)
+                .clickable(onClick = { navHost.navigateTo(NavScreen.CropScreen) })
+        )
+
         Slider(
             modifier = Modifier.semantics { contentDescription = "Y translate" },
             value = yPosition,
             onValueChange = { yPosition = it },
-            valueRange = 0f..1f, )
+            valueRange = 0f..1f,
+        )
         Text("Y Position")
         Slider(
             modifier = Modifier.semantics { contentDescription = "X translate" },
             value = xPosition,
             onValueChange = { xPosition = it },
-            valueRange = 0f..1f, )
+            valueRange = 0f..1f,
+        )
         Text("X Position")
         Slider(
             modifier = Modifier.semantics { contentDescription = "Input Size" },
             value = inputSize,
             onValueChange = { inputSize = it },
-            valueRange = 0f..4f )
+            valueRange = 0f..4f
+        )
         Text("Input Size")
         Slider(
             modifier = Modifier.semantics { contentDescription = "Output Size" },
-            value = outputSize,
-            onValueChange = { outputSize = it },
-            valueRange = 100f..500f, )
+            value = outputSize.toFloat(),
+            onValueChange = { outputSize = it.toInt() },
+            valueRange = 100f..500f,
+        )
         Text("Output Size")
 
 
 
         username?.let { Text(it, style = MaterialTheme.typography.titleLarge) }
-        email?.let { Text(it, style = MaterialTheme.typography.titleLarge)}
+        email?.let { Text(it, style = MaterialTheme.typography.titleLarge) }
 
-}
-
+    }
 }
 
 fun croppingScream(x:Float,y:Float,scalingFactor: Float,outputSize: Int):Modifier
@@ -147,8 +158,8 @@ fun croppingScream(x:Float,y:Float,scalingFactor: Float,outputSize: Int):Modifie
     var originCY:Int by mutableStateOf(0) //upper left hand corner of cropped image
 
     return Modifier
-        //.clip(RectangleShape)
-        .border(1.dp,Color.Blue,RectangleShape)
+        .clip(RectangleShape)
+        //.border(1.dp,Color.Blue,RectangleShape)
         .layout{measurable,constraints->
             val placeable = measurable.measure(constraints)
             originalW = placeable.width
@@ -221,7 +232,7 @@ fun croppingScream(x:Float,y:Float,scalingFactor: Float,outputSize: Int):Modifie
                 }
             }
         }
-        .border(1.dp,Color.Red,RectangleShape)
+        //.border(1.dp,Color.Red,RectangleShape)
         .scale(scalingFactor)
 
 }

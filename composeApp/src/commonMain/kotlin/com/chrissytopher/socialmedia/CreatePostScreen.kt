@@ -172,10 +172,8 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                         }
                     }
                 }) { Text("Post!") }
-            }
-            Button(onClick = { contentIdState.value = null; navHost.popStack() }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Text("Cancel")
-            }
+                }
+            Button(onClick = { contentIdState.value = null; navHost.popStack() }, modifier = Modifier.align(Alignment.CenterHorizontally)) { Text("Cancel") }
         }
     }
 }
