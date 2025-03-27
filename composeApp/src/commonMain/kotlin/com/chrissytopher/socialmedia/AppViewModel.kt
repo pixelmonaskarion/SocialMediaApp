@@ -16,6 +16,9 @@ import io.ktor.client.statement.bodyAsBytes
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
@@ -107,21 +110,25 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
 
     abstract val platformContext: PlatformContext
 
-    var currentPosts: Flow<List<PostRepresentation>>? = null
+    val currentPosts: MutableStateFlow<List<PostRepresentation>> = MutableStateFlow(emptyList())
 
     fun getPostRecommendations() {
-        currentPosts = flow {
+        viewModelScope.launch {
             val location = getLocation(locationTracker)
-            val postIds = location?.let { apiClient.getRecommendations(it).getOrNullAndThrow() } ?: return@flow
+            val postIds = location?.let { apiClient.getRecommendations(it).getOrNullAndThrow() } ?: return@launch
             var posts by atomic(postIds.map { PostRepresentation(it, null, null) })
-            emit(posts)
+//            emit(posts)
             for (i in posts.indices) {
 //                coroutineScope {
                     val contentId = posts[i].contentId
-                    val info = apiClient.getPostInfo(contentId).getOrNullAndThrow()
-                    println("info: $info")
+                    val info = cacheManager.getCachedPostInfo(contentId) ?: apiClient.getPostInfo(contentId).getOrNull()
+                    if (info != null) {
+                        viewModelScope.launch {
+                            cacheManager.cacheInfo(contentId, info)
+                        }
+                    }
                     posts = posts.toMutableList().apply { set(i, get(i).copy(info = info)) }
-                    emit(posts)
+//                    emit(posts)
                     var media: Any? = cacheManager.getCachedPostMedia(contentId)
                     if (media == null) {
                         val postMediaUrl = apiClient.getPostMediaUrl(contentId)
@@ -137,9 +144,12 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
                         }
                     }
                     posts = posts.toMutableList().apply { set(i, get(i).copy(media = media)) }
-                    emit(posts)
+                    currentPosts.value = posts
+                    println("done with $contentId")
+//                    emit(posts)
 //                }
             }
+            currentPosts.value = posts
         }
     }
 }
