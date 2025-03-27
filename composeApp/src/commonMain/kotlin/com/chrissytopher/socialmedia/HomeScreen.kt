@@ -63,17 +63,15 @@ fun HomeScreen(viewModel: AppViewModel) {
                     Icon(Icons.Rounded.AccountCircle, null, Modifier.size(100.dp))
                 }
             }
-            if (viewModel.currentPosts == null) viewModel.getPostRecommendations()
-            val posts by viewModel.currentPosts!!.collectAsState(listOf())
+            val posts by viewModel.currentPosts.collectAsState()
+            if (posts.isEmpty()) viewModel.getPostRecommendations()
             println(posts)
             val likeIcon by viewModel.likeIcon
             LazyColumn {
                 items(posts) { post ->
-                    key(post) {
-                        post.info?.let {
-                            println("doing post: $post")
-                            Post(it, post.media, likeIcon)
-                        }
+                    println("doing post $post")
+                    post.info?.let {
+                        Post(it, post.media, likeIcon)
                     }
                 }
             }

@@ -58,6 +58,8 @@ import androidx.compose.foundation.layout.width
 //import androidx.compose.material3.contentColorFor
 //import com.chrissytopher.socialmedia.navigation.NavigationController
 //import coil3.compose.AsyncImage
+import socialmediaapp.composeapp.generated.resources.Res
+import socialmediaapp.composeapp.generated.resources.dancing_quag
 //import androidx.compose.ui.graphics.Color
 
 @Composable
@@ -160,15 +162,16 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     if (location == null) {
                         location = getLocation(viewModel.locationTracker)
                     }
-                    val postInfo = Json.encodeToString(JsonObject(hashMapOf(
+                    val postInfo = JsonObject(hashMapOf(
                         "content_id" to JsonPrimitive(contentId),
                         "caption" to JsonPrimitive(caption),
                         "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
                         "username" to JsonPrimitive(viewModel.authenticationManager.username),
                         "mime" to JsonPrimitive(mime.value)
-                    )))
-                    val res = viewModel.apiClient.uploadPostInfo(postInfo)
+                    ))
+                    val res = viewModel.apiClient.uploadPostInfo(Json.encodeToString(postInfo))
                     if (res.isSuccess) {
+                        viewModel.currentPosts.value += PostRepresentation(contentId!!, postInfo, image.value)
                         localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
                         navHost.popStack()
                     } else {
