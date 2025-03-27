@@ -149,34 +149,32 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     Text("Chose another")
                 }
                 Spacer(modifier = Modifier.width(10.dp))
-                Button(onClick = { contentIdState.value = null; navHost.popStack() }) {
-                    Text("Cancel")
-                }
+                val localSnackbar = LocalSnackbarState.current
+                Button(onClick = {
+                    keyboardController?.hide()
+                    coroutineScope.launch {
+                        if (location == null) {
+                            location = getLocation(viewModel.locationTracker)
+                        }
+                        val postInfo = Json.encodeToString(JsonObject(hashMapOf(
+                            "content_id" to JsonPrimitive(contentId),
+                            "caption" to JsonPrimitive(caption),
+                            "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
+                            "username" to JsonPrimitive(viewModel.authenticationManager.username),
+                            "mime" to JsonPrimitive(mime.value)
+                        )))
+                        val res = viewModel.apiClient.uploadPostInfo(postInfo)
+                        if (res.isSuccess) {
+                            localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
+                            navHost.popStack()
+                        } else {
+                            localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
+                        }
+                    }
+                }) { Text("Post!") }
             }
-            val localSnackbar = LocalSnackbarState.current
-            Button(onClick = {
-                keyboardController?.hide()
-                coroutineScope.launch {
-                    if (location == null) {
-                        location = getLocation(viewModel.locationTracker)
-                    }
-                    val postInfo = Json.encodeToString(JsonObject(hashMapOf(
-                        "content_id" to JsonPrimitive(contentId),
-                        "caption" to JsonPrimitive(caption),
-                        "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
-                        "username" to JsonPrimitive(viewModel.authenticationManager.username),
-                        "mime" to JsonPrimitive(mime.value)
-                    )))
-                    val res = viewModel.apiClient.uploadPostInfo(postInfo)
-                    if (res.isSuccess) {
-                        localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
-                        navHost.popStack()
-                    } else {
-                        localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
-                    }
-                }
-            }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Text("Post!")
+            Button(onClick = { contentIdState.value = null; navHost.popStack() }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text("Cancel")
             }
         }
     }
