@@ -58,7 +58,6 @@ import androidx.compose.foundation.layout.width
 //import androidx.compose.material3.contentColorFor
 //import com.chrissytopher.socialmedia.navigation.NavigationController
 //import coil3.compose.AsyncImage
-import socialmediaapp.composeapp.generated.resources.Res
 import socialmediaapp.composeapp.generated.resources.dancing_quag
 //import androidx.compose.ui.graphics.Color
 
