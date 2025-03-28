@@ -139,9 +139,10 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
                             (media as? ByteArray?)?.let { cacheManager.cacheMedia(contentId, it) }
                         }
 
-                        if (info?.get("mime")?.jsonPrimitive?.content?.startsWith("image/") == true) {
-                            media = ImageLoader(platformContext).execute(ImageRequest.Builder(platformContext).data(media).build()).image?.asPainter(platformContext)
-                        }
+
+                    }
+                    if (info?.get("mime")?.jsonPrimitive?.content?.startsWith("image/") == true) {
+                        media = ImageLoader(platformContext).execute(ImageRequest.Builder(platformContext).data(media).build()).image?.asPainter(platformContext)
                     }
                     posts = posts.toMutableList().apply { set(i, get(i).copy(media = media)) }
                     currentPosts.value = posts

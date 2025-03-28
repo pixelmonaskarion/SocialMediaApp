@@ -156,19 +156,24 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                         if (location == null) {
                             location = getLocation(viewModel.locationTracker)
                         }
-                        val postInfo = Json.encodeToString(JsonObject(hashMapOf(
+                        val postInfo = JsonObject(hashMapOf(
                             "content_id" to JsonPrimitive(contentId),
                             "caption" to JsonPrimitive(caption),
                             "location" to JsonPrimitive(location?.let { locationFormatted(it) }),
                             "username" to JsonPrimitive(viewModel.authenticationManager.username),
                             "mime" to JsonPrimitive(mime.value)
-                        )))
-                        val res = viewModel.apiClient.uploadPostInfo(postInfo)
+                        ))
+                        val res = viewModel.apiClient.uploadPostInfo(Json.encodeToString(postInfo))
                         if (res.isSuccess) {
-                            localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
+                            viewModel.currentPosts.value = viewModel.currentPosts.value.toMutableList().apply { add(PostRepresentation(contentId!!, postInfo, image.value)) }
+                            launch {
+                                localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
+                            }
                             navHost.popStack()
                         } else {
-                            localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
+                            launch {
+                                localSnackbar.showSnackbar("Tweaked \uD83D\uDE14, $res")
+                            }
                         }
                     }
                 }) { Text("Post!") }

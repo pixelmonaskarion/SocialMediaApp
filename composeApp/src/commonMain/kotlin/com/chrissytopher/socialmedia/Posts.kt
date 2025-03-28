@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -45,13 +47,13 @@ import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
 fun Post(postInfo: JsonObject, postMedia: Any?, likeIcon: Int, modifier: Modifier = Modifier) {
-    Column(modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.shapes.extraLarge)) {
+    Column(modifier.fillMaxWidth().padding(8.dp).clip(MaterialTheme.shapes.extraLarge).background(MaterialTheme.colorScheme.surfaceContainer)) {
         val postMime = postInfo["mime"]?.jsonPrimitive?.contentOrNull ?: "text/plain"
-        //Text(Json.encodeToString(postInfo))
         if (postMedia != null) {
             if (postMime.startsWith("image/")) {
                 val painter = key(postMedia) {
                     if (postMedia !is Painter) {
+                        println("non painter $postMedia")
                         rememberAsyncImagePainter(postMedia, onState = {
                             (it as? AsyncImagePainter.State.Error)?.result?.throwable?.printStackTrace()
                         })
@@ -60,16 +62,17 @@ fun Post(postInfo: JsonObject, postMedia: Any?, likeIcon: Int, modifier: Modifie
                     }
                 }
                 val loading by ((painter as? AsyncImagePainter)?.state?.map { it is AsyncImagePainter.State.Loading } ?: MutableStateFlow(false)).collectAsState(true)
-                Column(Modifier.fillMaxWidth()) {
+                val aspectRatio = runCatching { painter.intrinsicSize.width/painter.intrinsicSize.height }.getOrThrow()
+                Column {
                     Box(Modifier.align(Alignment.CenterHorizontally), contentAlignment = Alignment.Center) {
                         if (loading) {
-                            CircularProgressIndicator()
+                            CircularProgressIndicator(Modifier.fillMaxWidth().aspectRatio(aspectRatio))
                         } else {
                             Image(
                                 painter,
                                 "post media",
-                                contentScale = ContentScale.FillWidth,
-                                modifier = Modifier.clip(shape = MaterialTheme.shapes.extraLarge)
+                                contentScale = ContentScale.FillBounds,
+                                modifier = Modifier.background(Color.Black).fillMaxWidth().aspectRatio(aspectRatio)
                             )
                         }
                     }

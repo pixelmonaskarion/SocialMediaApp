@@ -1,5 +1,6 @@
 package com.chrissytopher.socialmedia
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -15,7 +16,6 @@ import androidx.compose.material.icons.outlined.Crop
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.chrissytopher.socialmedia.navigation.NavigationController
 import com.chrissytopher.socialmedia.navigation.NavigationStack
-import dev.icerock.moko.permissions.PermissionsController
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 val LocalPlatform: ProvidableCompositionLocal<Platform> = compositionLocalOf { error("no platform provided") }
@@ -99,29 +98,38 @@ fun App(viewModel: AppViewModel) {
                     navigationStack = navigationStack,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues)
                         .imePadding()
 
                 ) {
                     composable(route = NavScreen.Home) {
-                        HomeScreen(viewModel)
+                        HomeScreen(viewModel, paddingValues)
                     }
                     composable(route = NavScreen.Settings) {
-                        Settings(viewModel)
+                        Box(Modifier.padding(paddingValues)) {
+                            Settings(viewModel)
+                        }
                     }
                     composable(route = NavScreen.Login) {
-                        Login(viewModel) {
-                            navigationStack.clearStack(NavScreen.Home)
+                        Box(Modifier.padding(paddingValues)) {
+                            Login(viewModel) {
+                                navigationStack.clearStack(NavScreen.Home)
+                            }
                         }
                     }
                     composable(route = NavScreen.Account) {
-                        AccountSettingScreen(viewModel,navigationStack)
+                        Box(Modifier.padding(paddingValues)) {
+                            AccountSettingScreen(viewModel, navigationStack)
+                        }
                     }
                     composable(route = NavScreen.CreatePost) {
-                        CreatePostScreen(viewModel, navigationStack)
+                        Box(Modifier.padding(paddingValues)) {
+                            CreatePostScreen(viewModel, navigationStack)
+                        }
                     }
                     composable(route = NavScreen.CropScreen){
-                        CropScreen(viewModel,navigationStack,viewModel.iconImageLink.value)
+                        Box(Modifier.padding(paddingValues)) {
+                            CropScreen(viewModel, navigationStack, viewModel.iconImageLink.value)
+                        }
                     }
                 }
             }

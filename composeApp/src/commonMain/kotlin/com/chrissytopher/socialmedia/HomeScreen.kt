@@ -4,6 +4,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,52 +25,53 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
-fun HomeScreen(viewModel: AppViewModel) {
-    Box(Modifier.fillMaxSize().padding(10.dp)) {
+fun HomeScreen(viewModel: AppViewModel, innerPadding: PaddingValues) {
+    Box(Modifier.fillMaxSize()) {
         Column {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Social Media App", style = MaterialTheme.typography.titleLarge)
-                Row(
-                    Modifier.width(130.dp).height(50.dp).padding(20.dp, 0.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Box(Modifier.size(45.dp).clip(CircleShape).selectable(false) {
-
-                    }) {
-                        Icon(Icons.Outlined.FavoriteBorder, null, Modifier.align(Alignment.Center))
-                    }
-                    Box(Modifier.size(45.dp).clip(CircleShape).selectable(false) {
-
-                    }) {
-                        Icon(
-                            Icons.Outlined.ChatBubbleOutline,
-                            null,
-                            Modifier.align(Alignment.Center)
-                        )
-                    }
-                }
-            }
-            Row(Modifier.height(100.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.SpaceBetween) {
-                for(i in 1..5) {
-                    Icon(Icons.Rounded.AccountCircle, null, Modifier.size(100.dp))
-                }
-            }
-            val posts by viewModel.currentPosts.collectAsState()
+            val posts by viewModel.currentPosts.collectAsStateWithLifecycle()
             if (posts.isEmpty()) viewModel.getPostRecommendations()
-            println(posts)
             val likeIcon by viewModel.likeIcon
-            LazyColumn {
+            LazyColumn(contentPadding = innerPadding) {
+                item {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Social Media App", style = MaterialTheme.typography.titleLarge)
+                        Row(
+                            Modifier.width(130.dp).height(50.dp).padding(20.dp, 0.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Box(Modifier.size(45.dp).clip(CircleShape).selectable(false) {
+
+                            }) {
+                                Icon(Icons.Outlined.FavoriteBorder, null, Modifier.align(Alignment.Center))
+                            }
+                            Box(Modifier.size(45.dp).clip(CircleShape).selectable(false) {
+
+                            }) {
+                                Icon(
+                                    Icons.Outlined.ChatBubbleOutline,
+                                    null,
+                                    Modifier.align(Alignment.Center)
+                                )
+                            }
+                        }
+                    }
+                }
+                item {
+                    Row(Modifier.height(100.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.SpaceBetween) {
+                        for(i in 1..5) {
+                            Icon(Icons.Rounded.AccountCircle, null, Modifier.size(100.dp))
+                        }
+                    }
+                }
                 items(posts) { post ->
-                    println("doing post $post")
                     post.info?.let {
                         Post(it, post.media, likeIcon)
                     }
