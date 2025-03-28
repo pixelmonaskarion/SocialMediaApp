@@ -165,7 +165,8 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                         ))
                         val res = viewModel.apiClient.uploadPostInfo(Json.encodeToString(postInfo))
                         if (res.isSuccess) {
-                            viewModel.currentPosts.value = viewModel.currentPosts.value.toMutableList().apply { add(PostRepresentation(contentId!!, postInfo, image.value)) }
+                            println("posting $contentId")
+                            viewModel.currentPosts.value = listOf(PostRepresentation(contentId!!, postInfo, viewModel.loadImage(image.value))) + viewModel.currentPosts.value
                             launch {
                                 localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
                             }

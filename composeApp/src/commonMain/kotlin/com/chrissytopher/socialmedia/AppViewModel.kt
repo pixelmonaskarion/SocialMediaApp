@@ -2,6 +2,7 @@ package com.chrissytopher.socialmedia
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.ImageLoader
@@ -146,13 +147,14 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
                     }
                     posts = posts.toMutableList().apply { set(i, get(i).copy(media = media)) }
                     currentPosts.value = posts
-                    println("done with $contentId")
 //                    emit(posts)
 //                }
             }
             currentPosts.value = posts
         }
     }
+
+    suspend fun loadImage(model: Any?): Painter? = ImageLoader(platformContext).execute(ImageRequest.Builder(platformContext).data(model).build()).image?.asPainter(platformContext)
 }
 
 data class PostRepresentation(
