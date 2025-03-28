@@ -4,6 +4,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -92,8 +93,8 @@ fun Settings (viewModel: AppViewModel) {
 
             Button(onClick = {
                 viewModel.setSettingFormat(0)
-            }) {
-
+            }, enabled = true) {
+                Text("Change format")
             }
 
         }
@@ -169,8 +170,14 @@ fun settingFormatPicker(viewModel: AppViewModel) {
 //                }
 //            }
             }
+
+            Box() {
+                val formatInfo = listOf("", "*the classic sleek format", "*Easier to tell which toggle belongs to which setting")
+                Text(formatInfo[selectedMode])
+            }
             Button(onClick = {
                 done = true
+                viewModel.setSettingFormat(selectedMode)
             }, enabled = selectedMode != 0) {
                 Text("Done")
             }
