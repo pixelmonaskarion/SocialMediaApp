@@ -19,6 +19,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -112,46 +113,47 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
     abstract val platformContext: PlatformContext
 
     val currentPosts: MutableStateFlow<List<PostRepresentation>> = MutableStateFlow(emptyList())
-
-    fun getPostRecommendations() {
-        viewModelScope.launch {
-            val location = getLocation(locationTracker)
-            val postIds = location?.let { apiClient.getRecommendations(it).getOrNullAndThrow() } ?: return@launch
-            var posts by atomic(postIds.map { PostRepresentation(it, null, null) })
+    private val _isLoadingPosts: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isLoadingPosts = _isLoadingPosts.asStateFlow()
+    suspend fun getPostRecommendations() {
+        _isLoadingPosts.value = true
+        val location = getLocation(locationTracker)
+        val postIds = location?.let { apiClient.getRecommendations(it).getOrNullAndThrow() } ?: return
+        var posts by atomic(postIds.map { PostRepresentation(it, null, null) })
 //            emit(posts)
-            for (i in posts.indices) {
+        for (i in posts.indices) {
 //                coroutineScope {
-                    val contentId = posts[i].contentId
-                    val info = cacheManager.getCachedPostInfo(contentId) ?: apiClient.getPostInfo(contentId).getOrNull()
-                    if (info != null) {
-                        viewModelScope.launch {
-                            cacheManager.cacheInfo(contentId, info)
-                        }
+                val contentId = posts[i].contentId
+                val info = cacheManager.getCachedPostInfo(contentId) ?: apiClient.getPostInfo(contentId).getOrNull()
+                if (info != null) {
+                    viewModelScope.launch {
+                        cacheManager.cacheInfo(contentId, info)
                     }
-                    posts = posts.toMutableList().apply { set(i, get(i).copy(info = info)) }
+                }
+                posts = posts.toMutableList().apply { set(i, get(i).copy(info = info)) }
 //                    emit(posts)
-                    var media: Any? = cacheManager.getCachedPostMedia(contentId)
-                    if (media == null) {
-                        val postMediaUrl = apiClient.getPostMediaUrl(contentId)
-                            .getOrNullAndThrow() ?: continue
-                        media = runCatching { apiClient.httpClient.get(postMediaUrl).bodyAsBytes() }.getOrNullAndThrow() ?: continue
+                var media: Any? = cacheManager.getCachedPostMedia(contentId)
+                if (media == null) {
+                    val postMediaUrl = apiClient.getPostMediaUrl(contentId)
+                        .getOrNullAndThrow() ?: continue
+                    media = runCatching { apiClient.httpClient.get(postMediaUrl).bodyAsBytes() }.getOrNullAndThrow() ?: continue
 
-                        cacheManager.coroutineScope.launch {
-                            (media as? ByteArray?)?.let { cacheManager.cacheMedia(contentId, it) }
-                        }
-
-
+                    cacheManager.coroutineScope.launch {
+                        (media as? ByteArray?)?.let { cacheManager.cacheMedia(contentId, it) }
                     }
-                    if (info?.get("mime")?.jsonPrimitive?.content?.startsWith("image/") == true) {
-                        media = ImageLoader(platformContext).execute(ImageRequest.Builder(platformContext).data(media).build()).image?.asPainter(platformContext)
-                    }
-                    posts = posts.toMutableList().apply { set(i, get(i).copy(media = media)) }
-                    currentPosts.value = posts
+
+
+                }
+                if (info?.get("mime")?.jsonPrimitive?.content?.startsWith("image/") == true) {
+                    media = ImageLoader(platformContext).execute(ImageRequest.Builder(platformContext).data(media).build()).image?.asPainter(platformContext)
+                }
+                posts = posts.toMutableList().apply { set(i, get(i).copy(media = media)) }
+                currentPosts.value = posts
 //                    emit(posts)
 //                }
-            }
-            currentPosts.value = posts
         }
+        currentPosts.value = posts
+        _isLoadingPosts.value = false
     }
 
     suspend fun loadImage(model: Any?): Painter? = ImageLoader(platformContext).execute(ImageRequest.Builder(platformContext).data(model).build()).image?.asPainter(platformContext)

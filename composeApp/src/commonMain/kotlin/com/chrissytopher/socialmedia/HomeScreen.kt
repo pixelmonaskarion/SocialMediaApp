@@ -21,9 +21,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,16 +35,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: AppViewModel, innerPadding: PaddingValues) {
-    Box(Modifier.fillMaxSize()) {
+    val isRefreshing by viewModel.isLoadingPosts.collectAsStateWithLifecycle()
+    PullToRefreshBox(isRefreshing, onRefresh = {
+        viewModel.viewModelScope.launch {
+            viewModel.getPostRecommendations()
+        }
+    }, modifier = Modifier.fillMaxSize()) {
         Column {
             val posts by viewModel.currentPosts.collectAsStateWithLifecycle()
-            LaunchedEffect(posts) {
-                println(posts)
-            }
-            if (posts.isEmpty()) viewModel.getPostRecommendations()
+//            LaunchedEffect(posts) {
+//                if (posts.isEmpty()) {
+//                    launch {
+//                        viewModel.getPostRecommendations()
+//                    }
+//                }
+//            }
             val likeIcon by viewModel.likeIcon
             LazyColumn(contentPadding = innerPadding) {
                 item {
