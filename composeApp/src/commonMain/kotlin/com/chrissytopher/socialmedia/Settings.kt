@@ -139,11 +139,11 @@ fun settingFormatPicker(viewModel: AppViewModel) {
                     Card(
                         Modifier.weight(1f).padding(5.dp).clip(MaterialTheme.shapes.medium).border(
                             width = 2.dp,
-                            color = if (selectedMode == i) MaterialTheme.colorScheme.primary else Color.Gray,
+                            color = if (selectedMode == i) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerHighest,
                             shape = MaterialTheme.shapes.medium
                         ).clickable(selectedMode != i) {
                             selectedMode = i
-                        }) {
+                        }, colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surfaceContainer)) {
                         Column(Modifier.padding(5.dp)) {
                             for (n in 1..3) {
                                 Row(
