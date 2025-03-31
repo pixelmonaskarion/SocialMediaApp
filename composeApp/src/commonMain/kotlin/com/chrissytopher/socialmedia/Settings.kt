@@ -157,18 +157,6 @@ fun settingFormatPicker(viewModel: AppViewModel) {
                         }
                     }
                 }
-//            Card(Modifier.weight(1f).padding(5.dp).clip(MaterialTheme.shapes.medium).border(width = 2.dp, color = if (selectedMode == 2) Color.Magenta else Color.Black, shape = MaterialTheme.shapes.medium).clickable(selectedMode != 2) {
-//                selectedMode = 2
-//            }, elevation = CardDefaults.elevatedCardElevation(3.dp, 0.dp, 1.dp, 1.dp, 1.dp, 3.dp)) {
-//                Column(Modifier.padding(5.dp)) {
-//                    for (n in 1..3) {
-//                        Row() {
-//                            Text("setting " + "n".repeat(n%3))
-//                            Icon(Icons.Outlined.ToggleOn, null)
-//                        }
-//                    }
-//                }
-//            }
             }
             Column(Modifier.padding(5.dp)) {
                 Box {
