@@ -139,7 +139,7 @@ fun settingFormatPicker(viewModel: AppViewModel) {
                     Card(
                         Modifier.weight(1f).padding(5.dp).clip(MaterialTheme.shapes.medium).border(
                             width = 2.dp,
-                            color = if (selectedMode == i) Color.Magenta else Color.Black,
+                            color = if (selectedMode == i) MaterialTheme.colorScheme.primary else Color.Gray,
                             shape = MaterialTheme.shapes.medium
                         ).clickable(selectedMode != i) {
                             selectedMode = i
@@ -170,16 +170,21 @@ fun settingFormatPicker(viewModel: AppViewModel) {
 //                }
 //            }
             }
-
-            Box() {
-                val formatInfo = listOf("", "*the classic sleek format", "*Easier to tell which toggle belongs to which setting")
-                Text(formatInfo[selectedMode])
-            }
-            Button(onClick = {
-                done = true
-                viewModel.setSettingFormat(selectedMode)
-            }, enabled = selectedMode != 0) {
-                Text("Done")
+            Column(Modifier.padding(5.dp)) {
+                Box {
+                    val formatInfo = listOf(
+                        "",
+                        "*the classic sleek format",
+                        "*Easier to tell which toggle belongs to which setting"
+                    )
+                    Text(formatInfo[selectedMode])
+                }
+                Button(onClick = {
+                    done = true
+                    viewModel.setSettingFormat(selectedMode)
+                }, enabled = selectedMode != 0) {
+                    Text("Done")
+                }
             }
         }
     } else {
