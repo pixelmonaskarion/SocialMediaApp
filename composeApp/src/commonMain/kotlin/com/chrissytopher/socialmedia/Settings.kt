@@ -1,5 +1,6 @@
 package com.chrissytopher.socialmedia
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,6 +33,7 @@ import androidx.compose.material3.ElevatedFilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,8 +44,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.chrissytopher.socialmedia.theme.darkScheme
+import com.chrissytopher.socialmedia.theme.lightScheme
+import org.jetbrains.compose.resources.painterResource
+import socialmediaapp.composeapp.generated.resources.Res
+import socialmediaapp.composeapp.generated.resources.dancing_quag
+import socialmediaapp.composeapp.generated.resources.kissMe
 
 val likeIcons = listOf(
     Pair(Icons.Outlined.FavoriteBorder, Icons.Outlined.Favorite),
@@ -56,7 +65,18 @@ fun Settings (viewModel: AppViewModel) {
     if (settingFormat != 0) {
         val selectedLikeIcon by viewModel.likeIcon
         val quag by viewModel.quag
+        val romantical by viewModel.romantical
         val darkMode by viewModel.darkMode
+        MaterialTheme(if (romantical) lightScheme else MaterialTheme.colorScheme) {
+            if (romantical)
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Image(
+                        painter = painterResource(Res.drawable.kissMe),
+                        contentDescription = "BG Image",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
         Column {
             Text(
                 "Like Icon:",
@@ -86,9 +106,21 @@ fun Settings (viewModel: AppViewModel) {
                 viewModel.toggleQuag()
             }
 
+            settingToggle(settingFormat, "Romantical Toggle ", romantical) {
+                viewModel.toggleRomantical()
+            }
+
             val systemDarkTheme = isSystemInDarkTheme()
             settingToggle(settingFormat, "Dark Mode ", darkMode ?: systemDarkTheme) {
                 viewModel.setDarkMode(darkMode?.not() ?: !systemDarkTheme)
+            }
+
+            if (romantical) {
+                Text(
+                    text = "Come over here and kiss me on my hot mouth, I'm feeling romantical.",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             }
 
             Button(onClick = {
@@ -97,7 +129,7 @@ fun Settings (viewModel: AppViewModel) {
                 Text("Change format")
             }
 
-        }
+        } }
     } else {
         settingFormatPicker(viewModel)
     }
