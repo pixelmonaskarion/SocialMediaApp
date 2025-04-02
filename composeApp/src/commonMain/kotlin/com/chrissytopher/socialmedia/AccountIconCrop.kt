@@ -90,7 +90,7 @@ fun CropScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>, ima
                 }
                 .fillMaxWidth()
                 .fillMaxHeight()
-                .border(1.dp,Color.Cyan, RectangleShape)
+                //.border(1.dp,Color.Cyan, RectangleShape)
             )
         {
             Box(contentAlignment = Alignment.Center
