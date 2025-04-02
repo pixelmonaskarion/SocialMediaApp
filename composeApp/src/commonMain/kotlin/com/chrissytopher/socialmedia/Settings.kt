@@ -119,6 +119,7 @@ fun Settings (viewModel: AppViewModel) {
                 Text(
                     text = "Come over here and kiss me on my hot mouth, I'm feeling romantical.",
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
