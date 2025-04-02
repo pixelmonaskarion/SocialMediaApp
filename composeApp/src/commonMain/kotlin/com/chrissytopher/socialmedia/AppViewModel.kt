@@ -35,7 +35,7 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
     private val _settingFormat = mutableStateOf(kvault.int(SETTING_FORMAT_KEY) ?: 0)
     private val _likeIcon = mutableStateOf(kvault.int(LIKE_ICON_KEY) ?: 0)
     private val _quag = mutableStateOf(kvault.bool(QUAG_KEY) ?: true)
-    private val _romantical = mutableStateOf(kvault.bool(ROMANTICAL_KEY) ?: true)
+    private val _romantical = mutableStateOf(kvault.bool(ROMANTICAL_KEY) ?: false)
     private val _darkMode = mutableStateOf(kvault.bool(DARK_MODE_KEY))
     val settingFormat: State<Int> = _settingFormat
 
