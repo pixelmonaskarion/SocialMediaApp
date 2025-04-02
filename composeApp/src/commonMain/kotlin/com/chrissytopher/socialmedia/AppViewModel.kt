@@ -104,6 +104,7 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
         _iconScale.value = imageScale
         kvault.set(ICON_SCALE,imageScale)
         _iconOutSize.value = imageSize
+        kvault.set(ICON_OUTPUT,imageSize)
         if (imageLink != null){
             _iconImageLink.value = imageLink
             kvault.set(ICON_PIC_STRING,imageLink)
