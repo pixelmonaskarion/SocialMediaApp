@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
@@ -123,7 +124,7 @@ fun CropScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>, ima
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .offset { IntOffset(offsetX.roundToInt(),  offsetY.roundToInt()) }
-                        .background(Color.Blue)
+                        .background(Color.Blue,CircleShape)
                         .size(20.dp)
                         .pointerInput(Unit) {
                             detectDragGestures { change, dragAmount ->
@@ -149,7 +150,7 @@ fun CropScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>, ima
                 ){
                     Box(modifier = Modifier
                         .offset { IntOffset(cropSize.roundToInt(), cropSize.roundToInt()) }
-                        .background(Color.Green)
+                        .background(Color.Green, CircleShape)
                         .size(20.dp)
                         .pointerInput(Unit) {
                             detectDragGestures { change, dragAmount ->
