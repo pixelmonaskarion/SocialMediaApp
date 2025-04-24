@@ -3,47 +3,28 @@ agp = "8.5.2"
 android-compileSdk = "34"
 android-minSdk = "24"
 android-targetSdk = "34"
-androidx-activityCompose = "1.9.3"
-androidx-appcompat = "1.7.0"
-androidx-constraintlayout = "2.1.4"
-androidx-core-ktx = "1.13.1"
-androidx-espresso-core = "3.6.1"
-androidx-lifecycle = "2.8.3"
-androidx-material = "1.12.0"
-androidx-test-junit = "1.2.1"
+androidx-activityCompose = "1.10.1"
+androidx-lifecycle = "2.8.4"
 atomicfu = "0.27.0"
-coilCompose = "3.0.4"
-compose-multiplatform = "1.7.0"
+coilCompose = "3.1.0"
+compose-multiplatform = "1.7.3"
 geoCompose = "0.7.0"
-indispensable = "3.12.0"
-junit = "4.13.2"
-kotlin = "2.1.10"
+kotlin = "2.1.20"
 kotlinxIoCore = "0.6.0"
 kotlinxSerializationJson = "1.8.0"
-ktor = "3.0.1"
+ktor = "3.1.1"
 kvault = "1.12.0"
 logback = "1.5.11"
-supreme = "0.6.2"
-kotlinxDatetime = "0.6.1"
+kotlinxDatetime = "0.6.2"
 permissionsCompose = "0.18.0"
 uiGraphicsAndroid = "1.7.8"
-foundationAndroid = "1.7.8"
 
 [libraries]
 atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
 geo-compose = { module = "dev.icerock.moko:geo-compose", version.ref = "geoCompose" }
-indispensable = { module = "at.asitplus.signum:indispensable", version.ref = "indispensable" }
-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core-ktx" }
-androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidx-test-junit" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidx-espresso-core" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
-androidx-material = { group = "com.google.android.material", name = "material", version.ref = "androidx-material" }
-androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
@@ -60,9 +41,7 @@ ktor-server-netty = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "k
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
-supreme = { module = "at.asitplus.signum:supreme", version.ref = "supreme" }
 permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "permissionsCompose" }
-androidx-foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 androidx-ui-graphics-android = { group = "androidx.compose.ui", name = "ui-graphics-android", version.ref = "uiGraphicsAndroid" }
 
 [plugins]

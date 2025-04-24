@@ -2,13 +2,16 @@ package com.chrissytopher.socialmedia
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -34,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImagePainter
@@ -63,7 +67,7 @@ fun Post(postInfo: JsonObject, postMedia: Any?, likeIcon: Int, modifier: Modifie
                 }
                 val loading by ((painter as? AsyncImagePainter)?.state?.map { it is AsyncImagePainter.State.Loading } ?: MutableStateFlow(false)).collectAsState(true)
                 val aspectRatio = runCatching { painter.intrinsicSize.width/painter.intrinsicSize.height }.getOrThrow()
-                Column {
+                Column(Modifier.fillMaxWidth()) {
                     Box(Modifier.align(Alignment.CenterHorizontally), contentAlignment = Alignment.Center) {
                         if (loading) {
                             CircularProgressIndicator(Modifier.fillMaxWidth().aspectRatio(aspectRatio))
@@ -77,8 +81,13 @@ fun Post(postInfo: JsonObject, postMedia: Any?, likeIcon: Int, modifier: Modifie
                         }
                     }
                     val caption = runCatching { postInfo["caption"]?.jsonPrimitive?.contentOrNull }.getOrNull()
+                    val username = runCatching { postInfo["username"]?.jsonPrimitive?.contentOrNull }.getOrNull()
                     var liked by remember { mutableStateOf(false) }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(10.dp, 0.dp)) {
+                            Text(username ?: "" , style = MaterialTheme.typography.labelLarge)
+                            Text(caption ?: "", style = MaterialTheme.typography.bodyLarge)
+                        }
                         IconButton(onClick = {
                             liked = !liked
                         }) {
@@ -89,7 +98,6 @@ fun Post(postInfo: JsonObject, postMedia: Any?, likeIcon: Int, modifier: Modifie
                                     likeIcons[likeIcon].second
                                 }, "Like Button")
                         }
-                        Text(caption ?: ""  , Modifier.padding(10.dp, 0.dp), style = MaterialTheme.typography.bodyLarge)
                     }
                 }
             }

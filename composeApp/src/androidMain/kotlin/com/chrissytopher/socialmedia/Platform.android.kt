@@ -1,9 +1,7 @@
 package com.chrissytopher.socialmedia
 
-import android.content.Context
 import android.os.Build
 import android.provider.Settings
-import androidx.activity.ComponentActivity
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -19,19 +17,11 @@ import androidx.compose.ui.unit.dp
 import com.chrissytopher.socialmedia.theme.AppTypography
 import com.chrissytopher.socialmedia.theme.darkScheme
 import com.chrissytopher.socialmedia.theme.lightScheme
-import com.liftric.kvault.KVault
-import dev.icerock.moko.geo.LocationTracker
-import dev.icerock.moko.permissions.PermissionsController
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.io.Source
-import kotlin.coroutines.coroutineContext
 
 class AndroidPlatform(private val mainActivity: MainActivity) : Platform {
     override val name: String = "Android ${android.os.Build.VERSION.SDK_INT}"

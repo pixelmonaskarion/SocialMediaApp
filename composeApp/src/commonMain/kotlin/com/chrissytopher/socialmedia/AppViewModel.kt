@@ -115,6 +115,11 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
     val currentPosts: MutableStateFlow<List<PostRepresentation>> = MutableStateFlow(emptyList())
     private val _isLoadingPosts: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isLoadingPosts = _isLoadingPosts.asStateFlow()
+//    init {
+//        viewModelScope.launch {
+//            getPostRecommendations()
+//        }
+//    }
     suspend fun getPostRecommendations() {
         _isLoadingPosts.value = true
         val location = getLocation(locationTracker)

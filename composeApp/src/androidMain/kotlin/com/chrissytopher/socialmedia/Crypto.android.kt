@@ -1,8 +1,6 @@
 package com.chrissytopher.socialmedia
 
 import java.nio.ByteBuffer
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 class AndroidKeypair(var public: ByteArray, var private: ByteArray) : Keypair {
     override fun serialize(): ByteArray {
