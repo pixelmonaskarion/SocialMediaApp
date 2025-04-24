@@ -105,34 +105,34 @@ fun AccountSettingScreen(viewModel: AppViewModel,navHost:NavigationStack<NavScre
                 .clickable(onClick = { navHost.navigateTo(NavScreen.CropScreen) })
         )
 
-        Slider(
-            modifier = Modifier.semantics { contentDescription = "Y translate" },
-            value = yPosition,
-            onValueChange = { yPosition = it },
-            valueRange = 0f..1f,
-        )
-        Text("Y Position")
-        Slider(
-            modifier = Modifier.semantics { contentDescription = "X translate" },
-            value = xPosition,
-            onValueChange = { xPosition = it },
-            valueRange = 0f..1f,
-        )
-        Text("X Position")
-        Slider(
-            modifier = Modifier.semantics { contentDescription = "Input Size" },
-            value = inputSize,
-            onValueChange = { inputSize = it },
-            valueRange = 0f..4f
-        )
-        Text("Input Size")
-        Slider(
-            modifier = Modifier.semantics { contentDescription = "Output Size" },
-            value = outputSize.toFloat(),
-            onValueChange = { outputSize = it.toInt() },
-            valueRange = 100f..500f,
-        )
-        Text("Output Size")
+//        Slider(
+//            modifier = Modifier.semantics { contentDescription = "Y translate" },
+//            value = yPosition,
+//            onValueChange = { yPosition = it },
+//            valueRange = 0f..1f,
+//        )
+//        Text("Y Position")
+//        Slider(
+//            modifier = Modifier.semantics { contentDescription = "X translate" },
+//            value = xPosition,
+//            onValueChange = { xPosition = it },
+//            valueRange = 0f..1f,
+//        )
+//        Text("X Position")
+//        Slider(
+//            modifier = Modifier.semantics { contentDescription = "Input Size" },
+//            value = inputSize,
+//            onValueChange = { inputSize = it },
+//            valueRange = 0f..4f
+//        )
+//        Text("Input Size")
+//        Slider(
+//            modifier = Modifier.semantics { contentDescription = "Output Size" },
+//            value = outputSize.toFloat(),
+//            onValueChange = { outputSize = it.toInt() },
+//            valueRange = 100f..500f,
+//        )
+//        Text("Output Size")
 
 
 
@@ -158,7 +158,8 @@ fun croppingScream(x:Float,y:Float,scalingFactor: Float,outputSize: Int):Modifie
     var originCY:Int by mutableStateOf(0) //upper left hand corner of cropped image
 
     return Modifier
-        .clip(RectangleShape)
+        .clip(CircleShape)
+        //.clip(RectangleShape)
         //.border(1.dp,Color.Blue,RectangleShape)
         .layout{measurable,constraints->
             val placeable = measurable.measure(constraints)
