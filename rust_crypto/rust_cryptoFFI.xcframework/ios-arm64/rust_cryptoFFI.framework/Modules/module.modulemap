@@ -1,0 +1,4 @@
+framework module rust_cryptoFFI {
+    header "rust_cryptoFFI.h"
+    export *
+}

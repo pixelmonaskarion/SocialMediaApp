@@ -11,4 +11,6 @@ rm -r target/rust_cryptoFFI.xcframework
 
 xcframework -r
 
+mv target/rust_cryptoFFI.xcframework rust_cryptoFFI.xcframework
+
 # rm -r bindings

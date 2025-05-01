@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,14 +20,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,13 +48,15 @@ import coil3.compose.AsyncImagePainter
 import coil3.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
-fun Post(postInfo: JsonObject, postMedia: Any?, likeIcon: Int, modifier: Modifier = Modifier) {
+fun Post(postInfo: JsonObject, postMedia: Any?, likeIcon: Int, apiClient: ServerApi, myUsername: String, modifier: Modifier = Modifier) {
     Column(modifier.fillMaxWidth().padding(8.dp).clip(MaterialTheme.shapes.extraLarge).background(MaterialTheme.colorScheme.surfaceContainer)) {
         val postMime = postInfo["mime"]?.jsonPrimitive?.contentOrNull ?: "text/plain"
         if (postMedia != null) {
@@ -83,20 +89,44 @@ fun Post(postInfo: JsonObject, postMedia: Any?, likeIcon: Int, modifier: Modifie
                     val caption = runCatching { postInfo["caption"]?.jsonPrimitive?.contentOrNull }.getOrNull()
                     val username = runCatching { postInfo["username"]?.jsonPrimitive?.contentOrNull }.getOrNull()
                     var liked by remember { mutableStateOf(false) }
+                    var likeCount by remember { mutableStateOf(-1) }
+                    var coroutineScope = rememberCoroutineScope()
+                    LaunchedEffect(liked) {
+                        launch {
+                            postInfo["content_id"]?.jsonPrimitive?.contentOrNull?.let { id -> apiClient.getLikes(id).getOrNullAndThrow()?.let { likes ->
+                                println("likes: $likes")
+                                liked = likes.find { it.user == myUsername } != null
+                                likeCount = likes.size
+                            } }
+                        }
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(10.dp, 0.dp)) {
                             Text(username ?: "" , style = MaterialTheme.typography.labelLarge)
                             Text(caption ?: "", style = MaterialTheme.typography.bodyLarge)
                         }
-                        IconButton(onClick = {
-                            liked = !liked
-                        }) {
-                            Icon(
-                                if (!liked) {
-                                    likeIcons[likeIcon].first
-                                } else {
-                                    likeIcons[likeIcon].second
-                                }, "Like Button")
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(onClick = {
+                                coroutineScope.launch {
+                                    postInfo["content_id"]?.jsonPrimitive?.contentOrNull?.let { id ->
+                                        apiClient.setAttribute(id, "POST_LIKE", Json.encodeToString(!liked)).getOrNullAndThrow()
+                                    }
+                                    liked = !liked
+                                }
+                            }) {
+                                Icon(
+                                    if (!liked) {
+                                        likeIcons[likeIcon].first
+                                    } else {
+                                        likeIcons[likeIcon].second
+                                    }, "Like Button")
+                            }
+                            if (likeCount != -1) {
+                                Text("$likeCount", style = MaterialTheme.typography.bodyLarge)
+                            } else {
+                                CircularProgressIndicator(Modifier.size(with(LocalDensity.current) {MaterialTheme.typography.bodyLarge.fontSize.toDp() }))
+                            }
+                            Spacer(Modifier.width(8.dp))
                         }
                     }
                 }
