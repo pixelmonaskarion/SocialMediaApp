@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +38,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.chrissytopher.socialmedia.navigation.NavigationStack
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlin.math.roundToInt
 import kotlin.math.pow
 //fun kVaultToValue(xPercent:Float,yPercent:Float,inputScale:Float,correctScale: Float){
@@ -48,7 +53,7 @@ import kotlin.math.pow
 //
 //}
 @Composable
-fun CropScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>, imageLink: String?)
+fun CropScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>)
 {
     val platform = LocalPlatform.current
     val coroutineScope = rememberCoroutineScope()
@@ -62,14 +67,18 @@ fun CropScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>, ima
     var offsetX by remember { mutableStateOf(viewModel.cropOffsetX.value) }
     var offsetY by remember { mutableStateOf(viewModel.cropOffsetY.value) }
     val density = LocalDensity.current.density
-    val painter = rememberAsyncImagePainter(model = imageLink)
+    val imageLink = viewModel.iconImageLink.value
+    val painter = rememberAsyncImagePainter(viewModel.iconImageLink.value)
+
+    val image: MutableState<ByteArray?> = remember { mutableStateOf(null) }
     Row(horizontalArrangement = Arrangement.Center,modifier = Modifier
         .fillMaxWidth())
     {
         Icon(Icons.Filled.Save,"Save current crop settings",
             modifier = Modifier
                 .clickable(onClick = {
-                    saveCropToKVault(offsetX=offsetX, finalWidth = finalWidth,offsetY=offsetY,finalHeight=finalHeight, cropSize = cropSize,correctScale=correctScale, adjustCropSize =outputSize,viewModel=viewModel, imageLink = imageLink)
+                    saveCropToKVault(offsetX=offsetX, finalWidth = finalWidth,offsetY=offsetY,finalHeight=finalHeight, cropSize = cropSize,correctScale=correctScale, adjustCropSize =outputSize,viewModel=viewModel, imageLink = imageLink, coroutineScope = coroutineScope)
+
                     navHost.popStack() })
                 .requiredSize(50.dp))
     }
@@ -191,16 +200,31 @@ fun CropScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen>, ima
 //            Image(painter = painter,
 //                contentDescription = "User profile picture", modifier = croppingScream(xPercent,yPercent, inputScale,adjustCropSize)
 //           )
-        }
 
+        }
     }
 }
-fun saveCropToKVault(offsetX:Float,finalWidth:Int, offsetY:Float,finalHeight:Int, cropSize:Float,correctScale:Float,adjustCropSize:Int,viewModel: AppViewModel,imageLink:String?){
+fun saveCropToKVault(offsetX:Float,finalWidth:Int, offsetY:Float,finalHeight:Int, cropSize:Float,correctScale:Float,adjustCropSize:Int,viewModel: AppViewModel,imageLink:String?,coroutineScope: CoroutineScope){
     val xPercent = ((offsetX+(cropSize/2))/finalWidth) + 0.5f
     val yPercent = ((offsetY+(cropSize/2))/finalHeight) + 0.5f
     val inputScale = (adjustCropSize/cropSize) * correctScale
     viewModel.changeIconImage(xPercent,yPercent,inputScale,adjustCropSize,imageLink)
-
-
+    val mime = "image/?"
+    val username = viewModel.authenticationManager.username
+    coroutineScope.launch {
+        val iconInfo = JsonObject(hashMapOf(
+                "username" to JsonPrimitive(username),
+                "x_percent" to JsonPrimitive(xPercent),
+                "y_percent" to JsonPrimitive(yPercent),
+                "icon_scale" to JsonPrimitive(inputScale),
+                "icon_size" to JsonPrimitive(adjustCropSize),
+                "mime" to JsonPrimitive(mime)
+            )
+        )
+        println("sending info for $username")
+        val res = viewModel.apiClient.uploadIconInfo(iconInfo)
+        println("did it work????")
+        res.onSuccess {  println("updating $username") }
+    }
 }
 

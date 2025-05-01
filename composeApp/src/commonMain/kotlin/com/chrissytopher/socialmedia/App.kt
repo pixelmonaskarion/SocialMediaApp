@@ -8,11 +8,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Crop
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Crop
+import androidx.compose.material.icons.outlined.Face
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
@@ -48,7 +50,8 @@ enum class NavScreen(val selectedIcon: ImageVector, val unselectedIcon: ImageVec
     Settings(Icons.Filled.Settings, Icons.Outlined.Settings),
     Account(Icons.Filled.AccountCircle, Icons.Outlined.AccountCircle),
     CreatePost(Icons.Filled.Create, Icons.Outlined.Create),
-    CropScreen(Icons.Filled.Crop, Icons.Outlined.Crop,showInNavBar = false)
+    CropScreen(Icons.Filled.Crop, Icons.Outlined.Crop,showInNavBar = false),
+    IconSelect(Icons.Filled.Face, Icons.Outlined.Face, showInNavBar = false)
 }
 
 @Composable
@@ -128,8 +131,11 @@ fun App(viewModel: AppViewModel) {
                     }
                     composable(route = NavScreen.CropScreen){
                         Box(Modifier.padding(paddingValues)) {
-                            CropScreen(viewModel, navigationStack, viewModel.iconImageLink.value)
+                            CropScreen(viewModel, navigationStack)
                         }
+                    }
+                    composable(route = NavScreen.IconSelect){
+                        pickIconScreen(viewModel, navigationStack)
                     }
                 }
             }

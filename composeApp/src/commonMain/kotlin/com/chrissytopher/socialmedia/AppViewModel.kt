@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.float
+import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonPrimitive
 
 abstract class AppViewModel(val kvault: KVault) : ViewModel() {
@@ -109,6 +111,42 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
             _iconImageLink.value = imageLink
             kvault.set(ICON_PIC_STRING,imageLink)
         }
+
+    }
+//    fun fetchIconSettings(username:String){
+//        viewModelScope.launch {
+//            val json = apiClient.getIconInfo(username).getOrNull()
+//            if (json != null) {
+//                val xPer = json["x_percent"]?.jsonPrimitive?.float
+//                if (xPer != null) {
+//                    _iconXPer.value = xPer
+//                    kvault.set(ICON_X_PER,xPer)
+//                }
+//                val yPer = json["y_percent"]?.jsonPrimitive?.float
+//                if (yPer != null) {
+//                    _iconYPer.value = yPer
+//                    kvault.set(ICON_Y_PER,yPer)
+//                }
+//                val imageScale = json["icon_scale"]?.jsonPrimitive?.float
+//                if (imageScale != null) {
+//                    _iconScale.value = imageScale
+//                    kvault.set(ICON_SCALE,imageScale)
+//                }
+//                val imageSize = json["icon_size"]?.jsonPrimitive?.int
+//                if (imageSize != null) {
+//                    _iconOutSize.value = imageSize
+//                    kvault.set(ICON_OUTPUT,imageSize)
+//                }
+//
+//            }
+//        }
+//
+//    }
+    fun updateIconImage(imageLink:String?){
+        if (imageLink != null){
+            _iconImageLink.value = imageLink
+            kvault.set(ICON_PIC_STRING,imageLink)
+        }
     }
     fun changeCropSetting(offsetX:Float,offsetY:Float,cropSize:Float){
         _cropOffsetX.value = offsetX
@@ -172,4 +210,10 @@ data class PostRepresentation(
     val contentId: String,
     val info: JsonObject?,
     val media: Any?,
+)
+
+data class IconRepresenation(
+    val iconUsername: String,
+    val info: JsonObject?,
+    val media: Any?
 )
