@@ -1,5 +1,0 @@
-headers = rustCrypto/rustCrypto.h
-#headerFilter = rust_crypto/*
-
-compilerOpts.ios = -IrustCrypto/
-#linkerOpts.ios = -L$PROJECT_ROOT/src/iosMain/libs/rust_crypto.a

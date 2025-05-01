@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
-    kotlin("plugin.serialization") version "2.1.0"
+    kotlin("plugin.serialization") version libs.versions.kotlin
 }
 
 kotlin {
@@ -25,14 +25,6 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
-        }
-        iosTarget.compilations.getByName("main") {
-            cinterops {
-                val rustCrypto by creating {
-                    includeDirs("${project.rootDir}/composeApp/src/nativeInterop/cinterop/", "${project.rootDir}/composeApp/src/nativeInterop/cinterop/")
-//                    extraOpts("-libraryPath", "${project.rootDir}/composeApp/src/nativeInterop/cinterop/")
-                }
-            }
         }
     }
     
@@ -54,7 +46,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
-            implementation(projects.shared)
+//            implementation(projects.shared)
             implementation(libs.ktor.client.core)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor3)
@@ -107,4 +99,3 @@ dependencies {
     implementation(libs.androidx.ui.graphics.android)
     debugImplementation(compose.uiTooling)
 }
-

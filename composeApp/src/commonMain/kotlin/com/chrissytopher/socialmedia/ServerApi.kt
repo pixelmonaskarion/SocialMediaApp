@@ -27,11 +27,6 @@ const val AUTH_SERVER_PUBLIC_KEY_URL = "https://social-media-account-provisionin
 const val ICON_UPLOAD_LAMBDA_URL = "https://tn3z6kwjpinbbvpkkxvpy5w6v40zrcbs.lambda-url.us-east-2.on.aws"
 
 class ServerApi(val httpClient: HttpClient = HttpClient(), private val authenticationManager: AuthenticationManager) {
-
-    suspend fun greet(): String {
-        return httpClient.get("$SERVER_ADDRESS/").bodyAsText()
-    }
-
     suspend fun createAccount(req: CreateAccountRequest): Result<CreateAccountResponse> = runCatching {
         println(Json.encodeToString(req))
         val res = httpClient.post(CREATE_ACCOUNT_LAMBDA_URL) {

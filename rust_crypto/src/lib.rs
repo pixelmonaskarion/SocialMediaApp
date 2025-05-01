@@ -2,6 +2,8 @@ use jni::{objects::{JByteArray, JClass, JString}, sys::{jboolean, jstring}, JNIE
 use log::{error, warn};
 use openssl::{base64, error::ErrorStack, hash::MessageDigest, nid::Nid, pkey::{PKey, Private, Public}, rsa::Rsa, sign::Signer, x509::{X509Req, X509}};
 
+uniffi::setup_scaffolding!();
+
 #[no_mangle]
 pub extern "system" fn Java_com_chrissytopher_socialmedia_RustCrypto_newKeypair<'local>(env: JNIEnv<'local>, _class: JClass<'local>)
     -> JByteArray<'local> {
@@ -12,6 +14,12 @@ pub extern "system" fn Java_com_chrissytopher_socialmedia_RustCrypto_newKeypair<
         .expect("Couldn't create java string!");
 
     output
+}
+
+#[uniffi::export]
+pub fn new_keypair() -> Vec<u8> {
+    let keypair = Rsa::generate(2048).unwrap();
+    serialize_key(keypair)
 }
 
 fn serialize_key(key: Rsa<Private>) -> Vec<u8> {
@@ -53,6 +61,11 @@ pub extern "system" fn Java_com_chrissytopher_socialmedia_RustCrypto_createCsr<'
     output
 }
 
+#[uniffi::export]
+fn create_csr(keypair: Vec<u8>) -> Vec<u8> {
+    create_csr_inner(keypair).unwrap()
+}
+
 pub fn create_csr_inner(keypair: Vec<u8>) -> Result<Vec<u8>, ErrorStack> {
     let public_key = PKey::from_rsa(deserialize_public_key(&keypair)?)?;
     let private_key = PKey::from_rsa(deserialize_private_key(&keypair)?)?;
@@ -79,6 +92,12 @@ pub extern "system" fn Java_com_chrissytopher_socialmedia_RustCrypto_verifyAccou
     let output = valid.unwrap() as jboolean;
 
     output
+}
+
+#[uniffi::export]
+fn verify_account_certificate(keypair: Vec<u8>, username: String, certificate_base64: String, server_public_key: String) -> bool {
+    let cert_bytes = base64::decode_block(&certificate_base64).unwrap();
+    verify_account_certificate_inner(keypair, username, cert_bytes, server_public_key).unwrap()
 }
 
 pub fn verify_account_certificate_inner(keypair: Vec<u8>, username: String, certificate_bytes: Vec<u8>, server_public_key: String) -> Result<bool, ErrorStack> {
@@ -112,6 +131,17 @@ pub extern "system" fn Java_com_chrissytopher_socialmedia_RustCrypto_accountSign
     let signature = signer.sign_oneshot_to_vec(&payload).unwrap();
     let output = env.new_string(base64::encode_block(&signature)).unwrap();
     **output
+}
+
+#[uniffi::export]
+fn account_signature(keypair: Vec<u8>, username: String, nonce: String) -> String {
+    let keypair = PKey::from_rsa(deserialize_private_key(&keypair).unwrap()).unwrap();
+    let mut payload = vec![];
+    payload.append(&mut username.as_bytes().to_vec());
+    payload.append(&mut nonce.as_bytes().to_vec());
+    let mut signer = Signer::new(MessageDigest::sha256(), &keypair).unwrap();
+    let signature = signer.sign_oneshot_to_vec(&payload).unwrap();
+    base64::encode_block(&signature)
 }
 
 #[cfg(test)]

@@ -14,6 +14,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
 class CacheManager(private val cacheDirectory: Path, val coroutineScope: CoroutineScope) {
+    init {
+        SystemFileSystem.createDirectories(cacheDirectory)
+    }
     fun getCachedPostInfo(contentId: String): JsonObject? = runCatching<JsonObject> {
         return@runCatching Json.decodeFromString(SystemFileSystem.source(fileForInfo(contentId)).buffered().readAndClose().decodeToString())
     }.getOrNull()

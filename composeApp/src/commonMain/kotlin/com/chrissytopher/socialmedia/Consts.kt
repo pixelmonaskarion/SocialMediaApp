@@ -1,7 +1,5 @@
 package com.chrissytopher.socialmedia
 
-expect val SERVER_ADDRESS: String
-
 const val USERNAME_KEY = "USERNAME"
 const val EMAIL_KEY = "EMAIL"
 const val ACCOUNT_KEYPAIR_KEY = "ACCOUNT_KEYPAIR"
