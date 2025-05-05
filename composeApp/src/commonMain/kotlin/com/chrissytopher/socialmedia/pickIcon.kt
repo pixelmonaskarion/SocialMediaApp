@@ -77,15 +77,13 @@ fun pickIconScreen(viewModel: AppViewModel,navHost: NavigationStack<NavScreen>)
                     "x_percent" to JsonPrimitive(0.5f),
                     "y_percent" to JsonPrimitive(0.5f),
                     "icon_scale" to JsonPrimitive(1f),
-                    "icon_size" to JsonPrimitive(200),
+                    "icon_size" to JsonPrimitive(400),
                     "mime" to JsonPrimitive(mime.value)
                 ))
                 val res = viewModel.apiClient.uploadIconInfo(iconInfo)
                 if (res.isSuccess) {
                     println("posting $username")
-                    launch {
-                        localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
-                    }
+                    localSnackbar.showSnackbar("Locked in \uD83D\uDD25\uD83D\uDD25\uD83D\uDD1D\uD83D\uDD1F")
                     if (username != null) {
                         println("getting icon url for $username")
                         val result = viewModel.apiClient.getIconUrl(username)
@@ -100,6 +98,7 @@ fun pickIconScreen(viewModel: AppViewModel,navHost: NavigationStack<NavScreen>)
                     }
                 }
             }
-        }) { Text("Post!") }
+        }
+        ) { Text("Post!") }
     }
 }
