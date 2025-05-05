@@ -24,6 +24,7 @@ import kotlinx.serialization.json.jsonPrimitive
 const val CREATE_ACCOUNT_LAMBDA_URL = "https://7vdsxbmbhjc4csljqcvu3bw4ou0gupnr.lambda-url.us-west-2.on.aws/"
 const val POST_UPLOAD_LAMBDA_URL = "https://vby32pkmko4kmlvjk4oq6othue0hkarn.lambda-url.us-west-2.on.aws"
 const val AUTH_SERVER_PUBLIC_KEY_URL = "https://social-media-account-provisioning-public-key.s3.us-west-2.amazonaws.com/server_public_key.der"
+const val ATTRIBUTES_LAMBDA_URL = "https://7utmgtt5ck5pgt2tljhyeqtssa0fmvig.lambda-url.us-west-2.on.aws"
 const val ICON_UPLOAD_LAMBDA_URL = "https://tn3z6kwjpinbbvpkkxvpy5w6v40zrcbs.lambda-url.us-east-2.on.aws"
 
 class ServerApi(val httpClient: HttpClient = HttpClient(), private val authenticationManager: AuthenticationManager) {
@@ -101,6 +102,21 @@ class ServerApi(val httpClient: HttpClient = HttpClient(), private val authentic
         return@runCatching Json.decodeFromString(res.bodyAsText())
     }
 
+    suspend fun getLikes(postId: String): Result<List<Attribute>> = runCatching {
+        val res = httpClient.get("$ATTRIBUTES_LAMBDA_URL/get-likes?post-id=$postId") {
+            authenticationManager.addAuthHeaders(this)
+        }
+        return@runCatching Json.decodeFromString(res.bodyAsText())
+    }
+
+    suspend fun setAttribute(postId: String, attributeType: String, value: String): Result<Unit> = runCatching {
+        val res = println("set attribute: " + httpClient.post("$ATTRIBUTES_LAMBDA_URL/set-attribute") {
+            contentType(ContentType.Application.Json)
+            setBody(Attribute("", postId, attributeType, authenticationManager.username!!, value))
+            authenticationManager.addAuthHeaders(this)
+        }.bodyAsText())
+    }
+
     suspend fun getPostInfo(contentId: String): Result<JsonObject> = runCatching {
         val res = httpClient.post("$POST_UPLOAD_LAMBDA_URL/get-info?content_id=$contentId") {
             authenticationManager.addAuthHeaders(this)
@@ -129,6 +145,17 @@ data class CreateAccountResponse(
     @SerialName("error_message")
     val errorMessage: String?,
     val certificate: String?,
+)
+
+@Serializable
+data class Attribute(
+    val id: String,
+    @SerialName("post_id")
+    val postId: String,
+    @SerialName("attribute_type")
+    val attributeType: String,
+    val user: String,
+    val value: String,
 )
 
 fun <T> Result<T>.getOrNullAndThrow(message: String = ""): T? {

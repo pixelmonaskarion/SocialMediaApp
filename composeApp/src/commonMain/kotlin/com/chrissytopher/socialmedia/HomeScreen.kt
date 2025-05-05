@@ -49,13 +49,13 @@ fun HomeScreen(viewModel: AppViewModel, innerPadding: PaddingValues) {
     }, modifier = Modifier.fillMaxSize()) {
         Column {
             val posts by viewModel.currentPosts.collectAsStateWithLifecycle()
-//            LaunchedEffect(posts) {
-//                if (posts.isEmpty()) {
-//                    launch {
-//                        viewModel.getPostRecommendations()
-//                    }
-//                }
-//            }
+            LaunchedEffect(posts) {
+                if (posts.isEmpty()) {
+                    viewModel.viewModelScope.launch {
+                        viewModel.getPostRecommendations()
+                    }
+                }
+            }
             val likeIcon by viewModel.likeIcon
             LazyColumn(contentPadding = innerPadding) {
                 item {
@@ -91,7 +91,7 @@ fun HomeScreen(viewModel: AppViewModel, innerPadding: PaddingValues) {
                 }
                 items(posts) { post ->
                     post.info?.let {
-                        Post(it, post.media, likeIcon)
+                        Post(it, post.media, likeIcon, viewModel.apiClient, viewModel.authenticationManager.username!!)
                     }
                 }
             }
