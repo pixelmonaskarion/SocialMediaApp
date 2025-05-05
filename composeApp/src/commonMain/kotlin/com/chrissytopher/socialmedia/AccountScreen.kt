@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
@@ -75,10 +76,7 @@ fun AccountSettingScreen(viewModel: AppViewModel,navHost:NavigationStack<NavScre
         username = viewModel.authenticationManager.username
         email = viewModel.authenticationManager.email
     }
-    var profilePicture: String? by remember { mutableStateOf(viewModel.iconImageLink.value) }
-    if (profilePicture == null) {
-        profilePicture = "https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg"
-    }
+
     var yPosition by remember { mutableStateOf(viewModel.iconYPer.value) }
     var xPosition by remember { mutableStateOf(viewModel.iconXPer.value) }
     var inputSize by remember { mutableStateOf(viewModel.iconScale.value) }
@@ -89,9 +87,12 @@ fun AccountSettingScreen(viewModel: AppViewModel,navHost:NavigationStack<NavScre
     if (outputSize < 50) {
         outputSize = 50
     }
+    if (viewModel.iconImageLink.value == null || viewModel.iconImageLink.value == "") {
+        viewModel.updateIconImage("https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg")
+    }
+    val profilePicture: String? by remember { mutableStateOf(viewModel.iconImageLink.value) }
     val painter = rememberAsyncImagePainter(model = profilePicture)
     viewModel.changeIconImage(xPosition,yPosition,inputSize,outputSize,profilePicture)
-    // I would put the image fetch request here
     Column(
         Modifier
             .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
@@ -138,6 +139,7 @@ fun AccountSettingScreen(viewModel: AppViewModel,navHost:NavigationStack<NavScre
 
         username?.let { Text(it, style = MaterialTheme.typography.titleLarge) }
         email?.let { Text(it, style = MaterialTheme.typography.titleLarge) }
+        Button(onClick = {navHost.navigateTo(NavScreen.IconSelect)}){Text("Change Icon Image")}
 
     }
 }

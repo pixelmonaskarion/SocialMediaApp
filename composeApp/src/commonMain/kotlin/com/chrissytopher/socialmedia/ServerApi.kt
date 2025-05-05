@@ -25,6 +25,7 @@ const val CREATE_ACCOUNT_LAMBDA_URL = "https://7vdsxbmbhjc4csljqcvu3bw4ou0gupnr.
 const val POST_UPLOAD_LAMBDA_URL = "https://vby32pkmko4kmlvjk4oq6othue0hkarn.lambda-url.us-west-2.on.aws"
 const val AUTH_SERVER_PUBLIC_KEY_URL = "https://social-media-account-provisioning-public-key.s3.us-west-2.amazonaws.com/server_public_key.der"
 const val ATTRIBUTES_LAMBDA_URL = "https://7utmgtt5ck5pgt2tljhyeqtssa0fmvig.lambda-url.us-west-2.on.aws"
+const val ICON_UPLOAD_LAMBDA_URL = "https://tn3z6kwjpinbbvpkkxvpy5w6v40zrcbs.lambda-url.us-east-2.on.aws"
 
 class ServerApi(val httpClient: HttpClient = HttpClient(), private val authenticationManager: AuthenticationManager) {
     suspend fun createAccount(req: CreateAccountRequest): Result<CreateAccountResponse> = runCatching {
@@ -61,6 +62,37 @@ class ServerApi(val httpClient: HttpClient = HttpClient(), private val authentic
             authenticationManager.addAuthHeaders(this)
         }
         if (!res.status.isSuccess()) throw Exception("non-200 status: ${res.status} (${res.bodyAsText()})")
+    }
+    suspend fun uploadIconMedia(data:ByteArray){
+        val getRes = httpClient.post("$ICON_UPLOAD_LAMBDA_URL/post-icon") {
+            authenticationManager.addAuthHeaders(this)
+        }.bodyAsText()
+        val json = Json.decodeFromString<JsonObject>(getRes)
+        val uploadUrl = json["url"]!!.jsonPrimitive.content
+        val uploadRes = httpClient.put(uploadUrl) {
+            setBody(data)
+        }
+    }
+
+    suspend fun uploadIconInfo(info: JsonObject): Result<Unit> = runCatching {
+        val res = httpClient.post("$ICON_UPLOAD_LAMBDA_URL/post-icon-info") {
+            setBody(info)
+            contentType(ContentType.Application.Json)
+            authenticationManager.addAuthHeaders(this)
+        }
+        if (!res.status.isSuccess()) throw Exception("non-200 status: ${res.status} (${res.bodyAsText()})")
+    }
+    suspend fun getIconUrl(givenUsername: String): Result<String> = runCatching {
+        val res = httpClient.post("$ICON_UPLOAD_LAMBDA_URL/get-icon?username=$givenUsername") {
+            authenticationManager.addAuthHeaders(this)
+        }
+        return@runCatching res.bodyAsText()
+    }
+    suspend fun getIconInfo(givenUsername: String): Result<JsonObject> = runCatching {
+        val res = httpClient.post("$ICON_UPLOAD_LAMBDA_URL/get-icon-info?username=$givenUsername") {
+            authenticationManager.addAuthHeaders(this)
+        }
+        return@runCatching Json.decodeFromString(res.bodyAsText())
     }
 
     suspend fun getRecommendations(location: LatLng): Result<List<String>> = runCatching {
