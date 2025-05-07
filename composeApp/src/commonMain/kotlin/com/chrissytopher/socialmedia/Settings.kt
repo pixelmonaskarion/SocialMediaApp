@@ -145,7 +145,7 @@ fun settingToggle(type: Int, key: String, setting: Boolean, func: () -> Unit) {
         }
 
     Row(Modifier.padding(5.dp).height(30.dp).then(typeModifier.first), horizontalArrangement = typeModifier.second) {
-        Text(key, Modifier.align(Alignment.CenterVertically), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+         Text(key, Modifier.align(Alignment.CenterVertically), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
         Switch(checked = setting, onCheckedChange = { func() })
     }
 }
