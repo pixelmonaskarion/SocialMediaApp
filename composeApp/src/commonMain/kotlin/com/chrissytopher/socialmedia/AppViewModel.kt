@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.compose.asPainter
@@ -24,6 +25,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.float
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonPrimitive
@@ -167,6 +169,54 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
 //            getPostRecommendations()
 //        }
 //    }
+
+    suspend fun getIconInfoUser(username: String):JsonObject{
+        val info = cacheManager.getCachedIconInfo(username) ?: apiClient.getIconInfo(username).getOrNull()
+        if (info != null){
+            viewModelScope.launch {
+                cacheManager.cacheInfo(username, info)
+            }
+            return info
+        }
+        val mime = "image/?"
+        val iconInfoDefault = JsonObject(hashMapOf(
+            "username" to JsonPrimitive(username),
+            "x_percent" to JsonPrimitive(0.5f),
+            "y_percent" to JsonPrimitive(0.5f),
+            "icon_scale" to JsonPrimitive(1f),
+            "icon_size" to JsonPrimitive(400),
+            "mime" to JsonPrimitive(mime)
+        ))
+        return iconInfoDefault
+    }
+    suspend fun forceIconUserRefresh(username:String)
+    {
+        val newInfo = apiClient.getIconInfo(username).getOrNull()
+        if (newInfo != null) {
+            viewModelScope.launch {
+                cacheManager.cacheIconInfo(username,newInfo)
+            }
+        }
+        var media: Any? = cacheManager.getCachedIconMedia(username)
+        if (media == null) {
+            val iconMediaUrl = apiClient.getIconUrl(username).getOrNull()
+            if (iconMediaUrl != null) {
+                media = runCatching { apiClient.httpClient.get(iconMediaUrl).bodyAsBytes() }.getOrNullAndThrow()
+                cacheManager.coroutineScope.launch {
+                    (media as? ByteArray?)?.let { cacheManager.cacheMedia(username, it) }
+                }
+            }
+
+
+        }
+    }
+    suspend fun offlineIconUpload(icon: ByteArray,username: String)
+    {
+        viewModelScope.launch {
+            cacheManager.cacheIconMedia(username,icon)
+        }
+    }
+
     suspend fun getPostRecommendations() {
         _isLoadingPosts.value = true
         val location = getLocation(locationTracker)
@@ -218,7 +268,7 @@ data class PostRepresentation(
 )
 
 data class IconRepresenation(
-    val iconUsername: String,
+    val username: String,
     val info: JsonObject?,
     val media: Any?
 )

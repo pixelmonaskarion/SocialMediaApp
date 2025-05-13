@@ -90,6 +90,7 @@ fun AccountSettingScreen(viewModel: AppViewModel,navHost:NavigationStack<NavScre
     if (viewModel.iconImageLink.value == null || viewModel.iconImageLink.value == "") {
         viewModel.updateIconImage("https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg")
     }
+
     val profilePicture: String? by remember { mutableStateOf(viewModel.iconImageLink.value) }
     val painter = rememberAsyncImagePainter(model = profilePicture)
     viewModel.changeIconImage(xPosition,yPosition,inputSize,outputSize,profilePicture)
@@ -105,37 +106,6 @@ fun AccountSettingScreen(viewModel: AppViewModel,navHost:NavigationStack<NavScre
             modifier = croppingScream(xPosition, yPosition, inputSize, outputSize)
                 .clickable(onClick = { navHost.navigateTo(NavScreen.CropScreen) })
         )
-
-//        Slider(
-//            modifier = Modifier.semantics { contentDescription = "Y translate" },
-//            value = yPosition,
-//            onValueChange = { yPosition = it },
-//            valueRange = 0f..1f,
-//        )
-//        Text("Y Position")
-//        Slider(
-//            modifier = Modifier.semantics { contentDescription = "X translate" },
-//            value = xPosition,
-//            onValueChange = { xPosition = it },
-//            valueRange = 0f..1f,
-//        )
-//        Text("X Position")
-//        Slider(
-//            modifier = Modifier.semantics { contentDescription = "Input Size" },
-//            value = inputSize,
-//            onValueChange = { inputSize = it },
-//            valueRange = 0f..4f
-//        )
-//        Text("Input Size")
-//        Slider(
-//            modifier = Modifier.semantics { contentDescription = "Output Size" },
-//            value = outputSize.toFloat(),
-//            onValueChange = { outputSize = it.toInt() },
-//            valueRange = 100f..500f,
-//        )
-//        Text("Output Size")
-
-
 
         username?.let { Text(it, style = MaterialTheme.typography.titleLarge) }
         email?.let { Text(it, style = MaterialTheme.typography.titleLarge) }

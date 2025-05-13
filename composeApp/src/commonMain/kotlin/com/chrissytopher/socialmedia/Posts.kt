@@ -101,7 +101,17 @@ fun Post(postInfo: JsonObject, postMedia: Any?, likeIcon: Int, apiClient: Server
                         }
                     }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+
                         Column(Modifier.padding(10.dp, 0.dp)) {
+//                            val usernameIconLink = mutableStateOf("")
+//                            val iconScale = 50
+//                            var iconInfo by mutableStateOf(JsonObject(null))
+//                            coroutineScope.launch{
+//                                if (username != null) {
+//                                    usernameIconLink.value = cacheManager apiClient.getIconUrl(username).getOrThrow()
+//                                    iconInfo = apiClient.getIconInfo(username).getOrThrow()
+//                                }
+//                            }
                             Text(username ?: "" , style = MaterialTheme.typography.labelLarge)
                             Text(caption ?: "", style = MaterialTheme.typography.bodyLarge)
                         }

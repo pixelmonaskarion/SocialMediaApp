@@ -46,6 +46,7 @@ fun pickIconScreen(viewModel: AppViewModel,navHost: NavigationStack<NavScreen>)
                             mime.value = "image/?"
                             image.value = pickedImage.readByteArray()
                             viewModel.apiClient.uploadIconMedia(image.value!!)
+
                             pickedImage.close()
                         }
                     }

@@ -40,9 +40,34 @@ class CacheManager(private val cacheDirectory: Path, val coroutineScope: Corouti
         bufferedSource.write(media)
         bufferedSource.close()
     }
+    fun getCachedIconInfo(username: String): JsonObject? = runCatching<JsonObject> {
+        return@runCatching Json.decodeFromString(SystemFileSystem.source(fileForIconInfo(username)).buffered().readAndClose().decodeToString())
+    }.getOrNull()
+
+    fun getCachedIconMedia(username: String): ByteArray? = runCatching<ByteArray> {
+        return@runCatching SystemFileSystem.source(fileForIconMedia(username)).buffered().readAndClose()
+    }.getOrNull()
+    fun cacheIconInfo(username: String, info: JsonObject) {
+        val infoFile = fileForIconInfo(username)
+        infoFile.parent?.let { SystemFileSystem.createDirectories(it) }
+        val bufferedSource = SystemFileSystem.sink(infoFile).buffered()
+        bufferedSource.write(Json.encodeToString(info).encodeToByteArray())
+        bufferedSource.close()
+    }
+    fun cacheIconMedia(username:String, media:ByteArray){
+        val mediaFile = fileForIconMedia(username)
+        mediaFile.parent?.let { SystemFileSystem.createDirectories(it) }
+        val bufferedSource = SystemFileSystem.sink(mediaFile).buffered()
+        bufferedSource.write(media)
+        bufferedSource.close()
+
+    }
 
     private fun fileForInfo(contentId: String): Path = Path(cacheDirectory, "info", "$contentId.json")
     private fun fileForMedia(contentId: String): Path = Path(cacheDirectory, "media", "$contentId.json")
+
+    private fun fileForIconInfo(username: String): Path = Path(cacheDirectory, "iconInfo","$username.json")
+    private fun fileForIconMedia(username:String): Path = Path(cacheDirectory,"iconMedia","$username.json")
 }
 
 fun Source.readAndClose(): ByteArray {
