@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import coil3.ImageLoader
 import coil3.compose.asPainter
 import coil3.request.ImageRequest
+import io.ktor.utils.io.core.toByteArray
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.io.Source
 import kotlinx.io.buffered
@@ -47,6 +48,11 @@ class CacheManager(private val cacheDirectory: Path, val coroutineScope: Corouti
     fun getCachedIconMedia(username: String): ByteArray? = runCatching<ByteArray> {
         return@runCatching SystemFileSystem.source(fileForIconMedia(username)).buffered().readAndClose()
     }.getOrNull()
+
+    fun getCachedIconUrl(username: String): String? = runCatching<String>{
+        return@runCatching SystemFileSystem.source(fileForIconUrl(username)).buffered().readAndClose().decodeToString()
+    }.getOrNull()
+
     fun cacheIconInfo(username: String, info: JsonObject) {
         val infoFile = fileForIconInfo(username)
         infoFile.parent?.let { SystemFileSystem.createDirectories(it) }
@@ -62,12 +68,21 @@ class CacheManager(private val cacheDirectory: Path, val coroutineScope: Corouti
         bufferedSource.close()
 
     }
+    fun cacheIconUrl(username: String, url: String){
+        val urlFile = fileForIconUrl(username)
+        urlFile.parent?.let { SystemFileSystem.createDirectories(it) }
+        val bufferedSource = SystemFileSystem.sink(urlFile).buffered()
+        bufferedSource.write(url.toByteArray())
+        bufferedSource.close()
+
+    }
 
     private fun fileForInfo(contentId: String): Path = Path(cacheDirectory, "info", "$contentId.json")
     private fun fileForMedia(contentId: String): Path = Path(cacheDirectory, "media", "$contentId.json")
 
     private fun fileForIconInfo(username: String): Path = Path(cacheDirectory, "iconInfo","$username.json")
     private fun fileForIconMedia(username:String): Path = Path(cacheDirectory,"iconMedia","$username.json")
+    private fun fileForIconUrl(username:String): Path = Path(cacheDirectory,"iconUrl","$username.json")
 }
 
 fun Source.readAndClose(): ByteArray {

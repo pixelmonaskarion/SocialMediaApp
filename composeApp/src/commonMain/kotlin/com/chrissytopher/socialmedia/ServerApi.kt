@@ -86,12 +86,14 @@ class ServerApi(val httpClient: HttpClient = HttpClient(), private val authentic
         val res = httpClient.post("$ICON_UPLOAD_LAMBDA_URL/get-icon?username=$givenUsername") {
             authenticationManager.addAuthHeaders(this)
         }
+        println(res.bodyAsText())
         return@runCatching res.bodyAsText()
     }
     suspend fun getIconInfo(givenUsername: String): Result<JsonObject> = runCatching {
         val res = httpClient.post("$ICON_UPLOAD_LAMBDA_URL/get-icon-info?username=$givenUsername") {
             authenticationManager.addAuthHeaders(this)
         }
+        println("iconInfo is"+res.bodyAsText())
         return@runCatching Json.decodeFromString(res.bodyAsText())
     }
 

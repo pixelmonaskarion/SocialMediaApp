@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -58,7 +60,11 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.compose.AsyncImagePainter
 import com.chrissytopher.socialmedia.navigation.NavigationStack
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsBytes
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -80,8 +86,8 @@ fun AccountSettingScreen(viewModel: AppViewModel,navHost:NavigationStack<NavScre
     var yPosition by remember { mutableStateOf(viewModel.iconYPer.value) }
     var xPosition by remember { mutableStateOf(viewModel.iconXPer.value) }
     var inputSize by remember { mutableStateOf(viewModel.iconScale.value) }
-    if (100f <inputSize || inputSize < 0.25f){
-    inputSize = 1f
+    if (100f < inputSize || inputSize < 0.25f) {
+        inputSize = 1f
     }
     var outputSize by remember { mutableStateOf(viewModel.iconOutputSize.value) }
     if (outputSize < 50) {
@@ -92,28 +98,43 @@ fun AccountSettingScreen(viewModel: AppViewModel,navHost:NavigationStack<NavScre
     }
 
     val profilePicture: String? by remember { mutableStateOf(viewModel.iconImageLink.value) }
-    val painter = rememberAsyncImagePainter(model = profilePicture)
-    viewModel.changeIconImage(xPosition,yPosition,inputSize,outputSize,profilePicture)
-    Column(
-        Modifier
-            .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    //val painter = rememberAsyncImagePainter(model = profilePicture)
+    var tempImage: ByteArray? by remember { mutableStateOf(null) }
+    if (tempImage == null) {
+        coroutineScope.launch {
+            tempImage = viewModel.getIconMedia(viewModel.authenticationManager.username ?: "")!!
+        }
+    }
+    if (tempImage != null) {
+        val painter = rememberAsyncImagePainter(tempImage, onState = {
+            (it as? AsyncImagePainter.State.Error)?.result?.throwable?.printStackTrace()
+        })
+        val loading by ((painter as? AsyncImagePainter)?.state?.map { it is AsyncImagePainter.State.Loading }
+            ?: MutableStateFlow(false)).collectAsState(true)
+        val aspectRatio = 1f
+        viewModel.changeIconImage(xPosition, yPosition, inputSize, outputSize, profilePicture)
+        Column(
+            Modifier
+                .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-        Spacer(Modifier.size(10.dp))
-        Image(
-            painter = painter,
-            contentDescription = "User profile picture",
-            modifier = croppingScream(xPosition, yPosition, inputSize, outputSize)
-                .clickable(onClick = { navHost.navigateTo(NavScreen.CropScreen) })
-        )
+            Spacer(Modifier.size(10.dp))
+            if (loading){
+                CircularProgressIndicator(Modifier.size(150.dp).aspectRatio(aspectRatio))
+            }else{
+            Image(
+                painter = painter,
+                contentDescription = "User profile picture",
+                modifier = croppingScream(xPosition, yPosition, inputSize, outputSize)
+                    .clickable(onClick = { navHost.navigateTo(NavScreen.CropScreen) })
+            )}
 
-        username?.let { Text(it, style = MaterialTheme.typography.titleLarge) }
-        email?.let { Text(it, style = MaterialTheme.typography.titleLarge) }
-        Button(onClick = {navHost.navigateTo(NavScreen.IconSelect)}){Text("Change Icon Image")}
-
+            username?.let { Text(it, style = MaterialTheme.typography.titleLarge) }
+            email?.let { Text(it, style = MaterialTheme.typography.titleLarge) }
+            Button(onClick = { navHost.navigateTo(NavScreen.IconSelect) }) { Text("Change Icon Image") }
+        }
     }
 }
-
 fun croppingScream(x:Float,y:Float,scalingFactor: Float,outputSize: Int):Modifier
 {
    //I'm going to have to draw this to figure out the math - scream

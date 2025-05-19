@@ -15,8 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import coil3.compose.rememberAsyncImagePainter
 import com.chrissytopher.socialmedia.navigation.NavigationStack
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsBytes
@@ -46,7 +48,9 @@ fun pickIconScreen(viewModel: AppViewModel,navHost: NavigationStack<NavScreen>)
                             mime.value = "image/?"
                             image.value = pickedImage.readByteArray()
                             viewModel.apiClient.uploadIconMedia(image.value!!)
-
+                            if (username != null) {
+                                viewModel.offlineIconUpload(image.value!!,username)
+                            }
                             pickedImage.close()
                         }
                     }
@@ -58,18 +62,18 @@ fun pickIconScreen(viewModel: AppViewModel,navHost: NavigationStack<NavScreen>)
                 image.value = null
             }
         }
-        image.value?.let { imageData ->
-            val decodedImage = decodedImage(imageData)
-            Image(
-                bitmap = decodedImage,
-                contentDescription = "selected image",
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 10.dp)
-                    .size(500.dp),
-                contentScale = ContentScale.Crop
-            )
-        }
+        val painter = rememberAsyncImagePainter(image.value)
+//        image.value?.let { imageData ->
+//            val decodedImage = decodedImage(imageData)
+        Image(
+//                bitmap = decodedImage,
+            painter = painter,"image practice?",
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 10.dp)
+                .size(500.dp),
+        )
+//        }
         val localSnackbar = LocalSnackbarState.current
         Button(onClick = {
             coroutineScope.launch {

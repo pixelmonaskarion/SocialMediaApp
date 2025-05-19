@@ -45,6 +45,8 @@ import org.jetbrains.compose.resources.painterResource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import coil3.compose.rememberAsyncImagePainter
+
 //import androidx.compose.foundation.Image
 //import androidx.compose.ui.graphics.ImageBitmap
 //import androidx.compose.foundation.gestures.scrollable
@@ -129,10 +131,11 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                     focusedTextColor = MaterialTheme.colorScheme.onSurface
                 )
             )
-            image.value?.let { imageData ->
-                val decodedImage = decodedImage(imageData)
+            val painter = rememberAsyncImagePainter(image.value)
+//            image.value?.let { imageData ->
+//                val decodedImage = decodedImage(imageData)
                 Image(
-                    bitmap = decodedImage,
+                    painter,
                     contentDescription = "selected image",
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
@@ -140,7 +143,7 @@ fun CreatePostScreen(viewModel: AppViewModel, navHost: NavigationStack<NavScreen
                         .size(500.dp),
                     contentScale = ContentScale.Crop
                 )
-            }
+//            }
             Row(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically

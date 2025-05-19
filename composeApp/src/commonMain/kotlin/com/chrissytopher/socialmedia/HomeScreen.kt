@@ -29,7 +29,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -91,7 +90,7 @@ fun HomeScreen(viewModel: AppViewModel, innerPadding: PaddingValues) {
                 }
                 items(posts) { post ->
                     post.info?.let {
-                        Post(it, post.media, likeIcon, viewModel.apiClient, viewModel.authenticationManager.username!!)
+                        Post(it, post.media, likeIcon, viewModel.apiClient, viewModel.authenticationManager.username!!, viewModel = viewModel)
                     }
                 }
             }

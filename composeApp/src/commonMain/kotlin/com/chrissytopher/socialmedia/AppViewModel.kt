@@ -49,6 +49,7 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
     private val _iconScale = mutableStateOf(kvault.float(ICON_SCALE)?: 1f)
     private val _iconOutSize = mutableStateOf(kvault.int(ICON_OUTPUT)?: 200)
 
+
     private val _cropOffsetX = mutableStateOf(kvault.float(CROP_OFFSETX)?:0f)
     private val _cropOffsetY = mutableStateOf(kvault.float(CROP_OFFSETY)?:0f)
     private val _cropSize = mutableStateOf(kvault.float(CROP_SIZE)?:10f)
@@ -170,51 +171,59 @@ abstract class AppViewModel(val kvault: KVault) : ViewModel() {
 //        }
 //    }
 
-    suspend fun getIconInfoUser(username: String):JsonObject{
+    suspend fun getIconInfoUser(username: String):JsonObject?{
         val info = cacheManager.getCachedIconInfo(username) ?: apiClient.getIconInfo(username).getOrNull()
         if (info != null){
             viewModelScope.launch {
                 cacheManager.cacheInfo(username, info)
             }
-            return info
         }
-        val mime = "image/?"
-        val iconInfoDefault = JsonObject(hashMapOf(
-            "username" to JsonPrimitive(username),
-            "x_percent" to JsonPrimitive(0.5f),
-            "y_percent" to JsonPrimitive(0.5f),
-            "icon_scale" to JsonPrimitive(1f),
-            "icon_size" to JsonPrimitive(400),
-            "mime" to JsonPrimitive(mime)
-        ))
-        return iconInfoDefault
+        return info
+    }
+    suspend fun getIconMedia(username: String):ByteArray?{
+        var media: Any? = cacheManager.getCachedIconMedia(username)
+        println("cached media is"+ media.toString())
+        if (media == null){
+            val iconMediaUrl = apiClient.getIconUrl(username).getOrNullAndThrow()
+            println("media url is: $iconMediaUrl")
+            if (iconMediaUrl != null) {
+                media = runCatching { apiClient.httpClient.get(iconMediaUrl).bodyAsBytes() }.getOrNullAndThrow()
+                cacheManager.coroutineScope.launch {
+                    (media as? ByteArray?)?.let { cacheManager.cacheIconMedia(username, it) }
+                }
+            }
+        }
+        return media as? ByteArray?
+        }
+    suspend fun byteArrayFromUrl(url: String): ByteArray?{
+        return runCatching { apiClient.httpClient.get(url).bodyAsBytes() }.getOrNullAndThrow()
     }
     suspend fun forceIconUserRefresh(username:String)
     {
+        println("forcing refresh for $username")
         val newInfo = apiClient.getIconInfo(username).getOrNull()
         if (newInfo != null) {
             viewModelScope.launch {
                 cacheManager.cacheIconInfo(username,newInfo)
             }
         }
-        var media: Any? = cacheManager.getCachedIconMedia(username)
-        if (media == null) {
-            val iconMediaUrl = apiClient.getIconUrl(username).getOrNull()
-            if (iconMediaUrl != null) {
-                media = runCatching { apiClient.httpClient.get(iconMediaUrl).bodyAsBytes() }.getOrNullAndThrow()
-                cacheManager.coroutineScope.launch {
-                    (media as? ByteArray?)?.let { cacheManager.cacheMedia(username, it) }
-                }
+        val iconMediaUrl = apiClient.getIconUrl(username).getOrNull()
+        if (iconMediaUrl != null) {
+            val media = runCatching { apiClient.httpClient.get(iconMediaUrl).bodyAsBytes() }.getOrNullAndThrow()
+            cacheManager.coroutineScope.launch {
+                (media)?.let { cacheManager.cacheIconMedia(username, it) }
             }
-
-
         }
+
+
     }
+
     suspend fun offlineIconUpload(icon: ByteArray,username: String)
     {
         viewModelScope.launch {
             cacheManager.cacheIconMedia(username,icon)
         }
+
     }
 
     suspend fun getPostRecommendations() {
